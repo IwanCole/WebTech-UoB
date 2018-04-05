@@ -1,0 +1,17 @@
+{
+  "name": "paw_pals",
+  "version": "1.0.0",
+  "description": "Dog version of Tinder!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Iwan Pettifer-Cole, Eleanor Cox",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "path": "^0.12.7",
+    "ws": "^5.1.1"
+  }
+}

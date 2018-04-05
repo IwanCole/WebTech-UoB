@@ -1,0 +1,9 @@
+PAGE LIST:
+    Home
+    About
+    Signup
+    Login
+    Profile
+    Edit Profile
+    Swiping / Matching
+    Chat
