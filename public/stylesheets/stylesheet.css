@@ -45,29 +45,29 @@ button:focus {
     font-size: 80px;
     font-weight: normal;
     margin: 20px 0 20px 0;
-    
+
     opacity: 0;
     animation-delay: 500ms;
-   
+
 }
 .home-welcome > .sub-title {
     font-size: 30px;
     color: #fa7aa9;
     display: inline-block;
-    
+
     opacity: 0;
     animation-delay: 1000ms;
-    
+
 }
 .home-welcome > .divider {
     background-color: #8F2D56;
-    width: 100%;
+    width: 0;
     height: 3px;
     display: block;
     border-radius: 2px;
-    margin: 30px 0 40px 0;
-    
-    opacity: 0;
+    margin: 30px auto 40px auto;
+
+   opacity: 0;
     animation-delay: 1.5s;
 }
 .home-signup-btn {
@@ -80,14 +80,14 @@ button:focus {
     border-radius: 35px;
     transform: translate(0, 0px);
     transition-duration: 200ms;
-    
+
     opacity: 0;
-    animation-delay: 2s !important;     
+    animation-delay: 2s !important;
 }
 .home-signup-btn:active {
     transform: translate(0, 3px);
     background-color: #ad0b45;
-    
+
     opacity: 0;
     animation-delay: 2s !important;
 }
@@ -120,12 +120,54 @@ footer > .sub-text {
     animation-fill-mode: forwards;
 /*    opacity: 1;*/
 }
-@-webkit-keyframes fadeIn { 
-    0% { opacity:0; } 
-    100% { opacity:1; } }
-@-moz-keyframes fadeIn { 
-    0% { opacity:0; } 
-    100% { opacity:1; } }
-@keyframes fadeIn { 
-    0% { opacity:0; } 
-    100% { opacity:1; } }
+@-webkit-keyframes fadeIn {
+    0% { opacity:0; }
+    100% { opacity:1; }
+}
+@-moz-keyframes fadeIn {
+    0% { opacity:0; }
+    100% { opacity:1; }
+}
+@keyframes fadeIn {
+    0% { opacity:0; }
+    100% { opacity:1; }
+}
+
+
+.anim-divider-expand {
+    -webkit-animation:expandOut 500ms ease-out;
+    -moz-animation:expandOut 500ms ease-out;
+    animation: expandOut 500ms ease-out;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@-webkit-keyframes expandOut {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+    100% {
+        width: 100%
+        opacity: 1;
+    }
+}
+@-moz-keyframes expandOut {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+    100% {
+        width: 100%
+        opacity: 1;
+    }
+}
+@keyframes expandOut {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+    100% {
+        width: 100%;
+        opacity: 1;
+    }
+}
