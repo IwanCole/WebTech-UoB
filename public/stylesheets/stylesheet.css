@@ -12,6 +12,9 @@ html {
     font-family: 'Gugi', sans-serif;
 /*    font-family: 'Dosis', sans-serif;*/
 }
+input, select, textarea {
+    font-family:inherit;
+}
 body {
     margin: 0;
     background-color: #FFFFFF;
@@ -208,6 +211,8 @@ input, input:focus {
 }
 .home-signup > form > input {
     font-size: 24px;
+    width: 350px;
+    border-radius: 8px;
 }
 .signup {
     display: inline-block;

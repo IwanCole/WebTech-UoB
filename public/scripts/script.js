@@ -13,27 +13,20 @@ var toggle_page_cover = function (show) {
 };
 
 
-var toggle_portal = function (type, show) {
-    if (type == 1) {
-//        $(".signup").addClass("signup-active");    
-    } else {
-        $(".login").show();
-    }
-//    $(".home-portal").toggleClass("card-active");
+var toggle_login = function (show) {
+    $(".login").show();
 };
 
 
 var handler_login_signup = function () {
     $(".home-signup-btn").click(function () {
-//        toggle_page_cover(true);
         $(".home-welcome").addClass("home-welcome-hidden");
-//        $(".home-signup-btn").addClass("home-signup-btn-a");
         $(".home-signup").addClass("signup-active");
-        toggle_portal(1, true);
     });
+    
     $(".current-user-name").click(function () {
         toggle_page_cover(true);
-        toggle_portal(2, true);
+        toggle_login(true);
     });
 };
 
