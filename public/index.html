@@ -4,11 +4,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         
         <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css">
-        <link rel="shortcut icon" type="image/x-icon" href="/media/favicon.ico">
-        <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
+        <link rel="shortcut icon" type="image/x-icon" href="media/favicon.ico">
+<!--        <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">-->
         
         <script sync src="scripts/jquery.js"></script>
         <script sync src="scripts/script.js"></script>
@@ -16,20 +13,51 @@
     <body>
         <div class="page-container">
             
+            <div class="current-login">
+                <span class="current-user-pic">
+                </span>
+                <button class="sub-text current-user-name">Log In</button>
+            </div>
+            
             <div class="home-welcome">
-                
                 <h1 class="title anim-fade-in">Paw Pals</h1>
                 <p class="sub-title anim-fade-in">The famous online service connecting over 9000 woofers. Our mission is simple: Eleanor needs to think of some visinoary vision to place here.</p>
-                
                 <span class="divider anim-divider-expand"></span>
-                
-                <button class="home-signup-btn anim-fade-in">Signup now</button>               
             </div>
+            
+            <div class="home-signup">
+                <form class="signup">
+                    <p class="sub-text">First Name</p>
+                    <input type="text" class="signup-input" name="signup-name">
+                    <p class="sub-text">Email Address</p>
+                    <input type="text" class="signup-input" name="signup-email">
+                    <p class="sub-text">Password</p>
+                    <input type="password" class="signup-input" name="signup-pw">
+                    <p class="sub-text">Confirm Password</p>
+                    <input type="password" class="signup-input" name="signup-pw2">
+                    <p class="sub-text">Dog Name</p>
+                    <input type="" class="signup-input" name="signup-dname">
+                </form>
+            </div>
+            
+            <button type="button" class="home-signup-btn anim-fade-in">Signup now</button>
+            
+            <div class="full-page-cover"></div>
+            <div class="home-login">
+                <form class="login">
+                    <p class="sub-text">Email Address</p>
+                    <input type="text" class="signup-input" name="signup-email">
+                    <p class="sub-text">Password</p>
+                    <input type="password" class="signup-input" name="signup-pw">
+                </form>
+            </div>
+            
+            
         
         </div>
         
         <footer class="site-footer">
-            <p class="sub-text">University of Bristol, Iwan and Eleanor</p>
+            <p class="sub-text">© &nbsp;&nbsp;University of Bristol &nbsp;&nbsp;&nbsp;Iwan and Eleanor &nbsp;&nbsp;&nbsp;2018</p>
         </footer>
     </body>
 </html>
