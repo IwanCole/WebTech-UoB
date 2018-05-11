@@ -17,15 +17,28 @@ var toggle_login = function (show) {
     $(".login").show();
 };
 
+var test = function () {
+    $(".home-signup-btn").toggleClass("home-signup-btn-hide");
+    $(".signup").toggleClass("signup-hide");
+};
 
 var handler_signup = function () {
+    var count = 0;
+    var filled = false;
+    
     $(".home-signup-btn").click(function () {
-        $(".home-welcome").addClass("home-welcome-hidden");
-        $(".home-signup").addClass("signup-active");
-        // Need the overflow to add whitespace around button
-        $(".home-signup").delay(1900).fadeIn(0, function () {
-            $(".home-signup").css("overflow", "inherit");
-        });
+        
+        if (!filled) {
+            $(".home-welcome").addClass("home-welcome-hidden");
+            $(".home-signup").addClass("signup-active");
+            // Need the overflow to add whitespace around button
+            $(".home-signup").delay(1900).fadeIn(0, function () {
+                $(".home-signup").css("overflow", "inherit");
+            });
+        } else {
+            $(".home-signup-btn").addClass("home-signup-btn-hide");
+            $(".signup").addClass("signup-hide anim-signup-spin");
+        }
     });
     
     
@@ -38,6 +51,7 @@ var handler_signup = function () {
             }
         });
         var alpha = count * 0.2;
+        if (count == 5) { filled = true; }
         $("body").css("background-color", "rgba(216, 17, 89, " + alpha.toString() + ")");
     });
     

@@ -10,3 +10,20 @@ PAGE LIST:
     
 https://coolors.co/d81159-8f2d56-218380-fbb13c-73d2de
 https://www.siteinspire.com/websites/7981-webflow-ecommerce
+
+Home:
+    Add scrolling images
+    More info?
+    Working Login box
+    Javascript for signup
+Signup:
+    Client side validation
+    Server side validation
+    Check for XSS
+    Store in DB
+    Cookies
+Login:
+    DB access
+    Return error
+    Cookies / session token
+    

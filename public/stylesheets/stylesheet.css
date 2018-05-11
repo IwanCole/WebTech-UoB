@@ -10,7 +10,6 @@
 html {
     margin: 0;
     font-family: 'Gugi', sans-serif;
-/*    font-family: 'Dosis', sans-serif;*/
     background-color: #ffffff;
 }
 input, select, textarea {
@@ -19,7 +18,7 @@ input, select, textarea {
 body {
     margin: 0;
     background-color: #FFFFFF;
-    transition-duration: 200ms;
+    transition-duration: 1s;
 }
 button {
     font-family: inherit;
@@ -168,8 +167,13 @@ input, input:focus {
     opacity: 0;
     animation-delay: 2s !important;
 }
-.home-signup-btn-a {
-    margin: -100 auto 0px auto;
+.home-signup-btn-hide {
+    transition-duration: 500ms;
+    font-size: 0px;
+    width: 0px;
+    height: 0px;
+    padding: 0px;
+/*    margin: 0px;*/
 }
 
 /*
@@ -198,30 +202,29 @@ input, input:focus {
     opacity: 1;
     max-height: 600px;
 }
-.home-signup > form > * {
+.signup {
+    max-width: 600px;
+    max-height: 700px;
+    display: inline-block;
+    padding: 30px 30px 130px 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    margin: 0 0 -100px 0;
+}
+.signup > * {
     display: block;
     margin: 5px auto;
     text-align: center;
+    transition-duration: 500ms;
+
 }
-.home-signup > form > p {
+.signup > p {
     font-size: 16px;
     display: inline-block;
     background-color: #ffffff;
     position: relative;
     margin-bottom: -12px;
     padding: 0 8px 0 8px;
-}
-.home-signup > form > input {
-    font-size: 24px;
-    width: 350px;
-    border-radius: 8px;
-}
-.signup {
-    display: inline-block;
-    padding: 30px 30px 130px 30px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    margin: 0 0 -100px 0;
 }
 .signup > input, .login > input {
     color: #4F0721;
@@ -230,6 +233,35 @@ input, input:focus {
     border-width: 1px;
     padding: 8px;
     border-radius: 5px;
+}
+.signup > input {
+    font-size: 24px;
+    width: 350px;
+    border-radius: 8px;
+}
+.signup-hide {
+    transition-delay: 0ms;
+    transition-duration: 500ms;
+    overflow: hidden;
+    max-width: 30px;
+    max-height: 30px;
+    width: 30px;
+    height: 30px;
+/*    border-radius: 15px;*/
+    padding: 0px;
+    margin: 0px;
+}
+.signup-hide > input {
+/*    display: none;*/
+    transition-duration: 500ms;
+    font-size: 0px;
+    padding: 0px;
+    border: none;
+    width: 0px;
+    height: 0px;
+}
+.signup-hide > p {
+    font-size: 0px;
 }
 .signup, .login {
 /*    display: none;*/
@@ -257,6 +289,69 @@ footer > .sub-text {
 
 
 /* ~~~~~ ANIMATIONS ~~~~~ */
+.anim-signup-spin {
+    -webkit-animation:signupSpin ease-in-out 1;    
+    -moz-animation:signupSpin ease-in-out 1;
+    animation: signupSpin 1s ease-in-out;
+    animation-iteration-count: infinite;
+    animation-fill-mode: forwards;
+    animation-delay: 600ms;
+    margin-bottom: -40px;
+    max-width: 40px;
+    max-height: 40px;
+}
+@-webkit-keyframes signupSpin {
+    0% { 
+        transform: rotate(0deg);
+        width: 30px;
+        height: 30px;
+    }
+    50% {
+        width: 40px;
+        height: 40px;
+    }
+    100% { 
+        transform: rotate(360deg);
+        height: 30px;
+        width: 30px;
+    }
+}
+@-moz-keyframes signupSpin {
+    0% { 
+        transform: rotate(0deg);
+        width: 30px;
+        height: 30px;
+    }
+    50% {
+        width: 40px;
+        height: 40px;
+    }
+    100% { 
+        transform: rotate(360deg);
+        height: 30px;
+        width: 30px;
+    }
+}
+@keyframes signupSpin {
+    0% { 
+        transform: rotate(0deg);
+        width: 30px;
+        height: 30px;
+    }
+    50% {
+        width: 40px;
+        height: 40px;
+    }
+    100% { 
+        transform: rotate(360deg);
+        height: 30px;
+        width: 30px;
+    }
+}
+
+
+
+
 .anim-fade-in {
     -webkit-animation:fadeIn ease-in 1;
     -moz-animation:fadeIn ease-in 1;
@@ -278,25 +373,6 @@ footer > .sub-text {
     0% { opacity:0; }
     100% { opacity:1; }
 }
-
-/*
-.anim-type {
-    animation: typing 3.5s steps(7, end);
-}
-@-webkit-keyframes typing {
-    0% { width: 0; }
-    100% { width: 100%; }
-}
-@-moz-keyframes typing {
-    0% { width: 0; }
-    100% { width: 100%; }
-}
-@keyframes typing {
-    0% { width: 0; }
-    100% { width: 100%; }
-}
-*/
-
 
 .anim-divider-expand {
     -webkit-animation:expandOut 500ms ease-out;
