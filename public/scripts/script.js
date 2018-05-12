@@ -12,10 +12,49 @@ var toggle_page_cover = function (show) {
     }
 };
 
+var popup = function(text, status) {
+    $(".status-popup-text").text(text);
+    if (status == 0) {
+        $(".status-popup-type").css("background-color", "#00d400");
+    } else if (status == 1) {
+        $(".status-popup-type").css("background-color", "#FBB13C");
+    } else if (status == 2) {
+        $(".status-popup-type").css("background-color", "#f50000");
+    }
+    $(".status-popup").addClass("status-popup-active");
+    $(".status-popup-active").delay(3000).queue(function(next){
+        $(this).removeClass("status-popup-active");
+        next();
+    });
+};
+
 
 var toggle_login = function (show) {
     $(".login").show();
 };
+
+
+var post_signup = function () {
+    var inputs = $(".signup-input");
+    var payload = JSON.stringify({
+        name: inputs[0].value,
+        email: inputs[0].value,
+        pass1: inputs[0].value,
+        pass2: inputs[0].value,
+        dname: inputs[0].value
+    });
+    
+    
+    $.post("/API-signup", payload, function(data, status){
+        if (status == 200) {
+            
+        } else {
+            
+        }
+//        alert("Data: " + data + "\nStatus: " + status);
+    });
+};
+
 
 var test = function () {
     $(".home-signup-btn").toggleClass("home-signup-btn-hide");
@@ -38,6 +77,7 @@ var handler_signup = function () {
         } else {
             $(".home-signup-btn").addClass("home-signup-btn-hide");
             $(".signup").addClass("signup-hide anim-signup-spin");
+            post_signup();
         }
     });
     
