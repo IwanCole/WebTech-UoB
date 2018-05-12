@@ -27,3 +27,9 @@ app.listen(8080, function() {
 app.get("/", function(req, res) {
     res.sendFile("/public/");
 });
+
+app.post("/API-signup", function(req, res) {
+    console.log(req.body);
+//    console.log("kfjldksfs");
+//    res.send("This is nothing ;)))");
+});
