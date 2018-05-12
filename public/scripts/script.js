@@ -36,23 +36,25 @@ var toggle_login = function (show) {
 
 var post_signup = function () {
     var inputs = $(".signup-input");
-    var payload = JSON.stringify({
-        name: inputs[0].value,
-        email: inputs[0].value,
-        pass1: inputs[0].value,
-        pass2: inputs[0].value,
-        dname: inputs[0].value
-    });
+    var payload = {
+        type:  "signup",
+        name:  inputs[0].value,
+        email: inputs[1].value,
+        pass1: inputs[2].value,
+        pass2: inputs[3].value,
+        dname: inputs[4].value
+    };
     
     
-    $.post("/API-signup", payload, function(data, status){
-        if (status == 200) {
-            
-        } else {
-            
-        }
-//        alert("Data: " + data + "\nStatus: " + status);
-    });
+    $.post("/API-signup", payload)
+           .done(function (data, staus) {
+                console.log(data);
+                popup("Signup submitted", 0);
+            })
+           .fail(function (xhr, error, statusCode) {
+                popup((xhr.status.toString() + " " + statusCode), 2);
+                console.log("xhr: " + xhr + "\nError: " + error + "\nStatus: " + statusCode);
+            });
 };
 
 
