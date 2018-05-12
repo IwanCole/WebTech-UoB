@@ -13,7 +13,41 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
-//app.use(express.favicon(__dirname + '/public/media/favicon.ico'));
+
+
+/* ---------------------------------------------
+
+Validate the data is ready to be operated on
+Check that the request has a "type" field
+For each possible "type" of req, check:
+    Exact number of key-value pairs are present
+    Existence of pair & Correct order of pairs
+    Non-empty string as value for pair
+
+Return False if any conditions fail
+Return True *only* if all conditions are met
+
+---------------------------------------------- */
+var validate_req = function(req) {
+    if (typeof req != "object") { return false; }
+    
+    if (req.type != undefined) {
+        if (req.type == "signup") {
+            if (Object.keys(req).length == 6) {
+                var expected = ["type", "name", "email", "pass1", "pass2", "dname"];
+                var i = 0;
+                var actual = Object.keys(req);
+                while (i < 6) {
+                    if (expected[i] != actual[i]) { return false; }
+                    if (req[expected[i]] == "") { return false; }
+                    i++;
+                }
+            } else { return false; }
+        } else { return false; }
+    } else { return false; }
+    
+    return true;
+};
 
 
 
@@ -30,6 +64,13 @@ app.get("/", function(req, res) {
 
 app.post("/API-signup", function(req, res) {
     console.log(req.body);
-//    console.log("kfjldksfs");
-//    res.send("This is nothing ;)))");
+    
+    if (validate_req(req.body)) {
+        res.status(200);
+        res.send("This is GOOD :D");
+    } else {
+        res.status(400)
+        res.send("This is BAD >:(");
+    }
+    
 });
