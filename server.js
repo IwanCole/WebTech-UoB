@@ -1,11 +1,14 @@
 // Required imported modules and libs
 var path  = require('path');
+var sql = require("sqlite3");
+var bcrypt = require("bcrypt");
 var WSS = require('ws').Server;
 var express = require('express');
 var bodyParser = require('body-parser');
 
 
-// Start the Express server
+// Start the Express server, create DB
+var db = new sql.Database("data.db");
 var app = express();
 var staticPath = path.join(__dirname, '/public');
 app.use(express.static(staticPath));
@@ -13,6 +16,29 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
+
+/* ---------------------------------------------
+
+            Database functions
+
+---------------------------------------------- */
+var db_init = function() {
+    db.run("create table users (uid, email, name, dname, picloc, salt, passhash, token)");
+};
+
+var db_new_user = function(UID, email, name, dname, picloc, salt, passHash, token) {
+    db.run("insert into users (uid, email, name, dname, picloc, salt, passhash, token) values(?, ?, ?, ?, ?, ?, ?, ?)", [UID, email, name, dname, picloc, salt, passHash, token], function (err) {
+        console.log(err);
+    });
+};
+
+
+
+// Webserver listens on port 8080, serves the webpages
+app.listen(8080, function() {
+    console.log('Express HTTP server on listening on port 8080');
+    db.serialize(db_init); 
+});
 
 
 /* ---------------------------------------------
@@ -86,7 +112,6 @@ Return True *only* if all conditions are met
 
 ---------------------------------------------- */
 var validate_format = function(req) {
-    var valid = true;
     var error = 0;
     
     if (!/^[a-zA-Z]+$/.test(req.name))   { error = 1; }
@@ -101,15 +126,86 @@ var validate_format = function(req) {
     if (!/^[a-zA-Z]+$/.test(req.dname))  { error = 7; }
     if (req.dname.length > 50)           { error = 8; }
     
-    if (error != 0) { valid = false; }
-    return { valid : valid, error : error };
+    return error;
 };
 
 
-// Webserver listens on port 8080, serves the webpages
-app.listen(8080, function() {
-    console.log('Express HTTP server on listening on port 8080');
-});
+/* ---------------------------------------------
+
+Gen (Blowfish based) hash from plaintext and Salt
+
+---------------------------------------------- */
+var create_hash = function(plaintext, salt) {
+    var hash = bcrypt.hashSync(plaintext, salt);
+    return {
+        salt:salt,
+        hash:hash
+    };  
+};
+
+
+/* ---------------------------------------------
+
+Create login token for user
+
+---------------------------------------------- */
+var create_auth_token = function (salt, passHash) {
+    var date = new Date();
+    var time = date.getTime().toString();
+    var token = create_hash(passHash + time, salt)
+    return token['hash'];
+}
+
+
+/* ---------------------------------------------
+
+Calculate values related to creating a new user
+Create random Salt
+Create UID      = hash(salt+email)
+Create PassHash = hash(salt+password)
+
+---------------------------------------------- */
+var create_user_creds = function(email, password) {
+    var salt         = bcrypt.genSaltSync(10);
+    var passwordData = create_hash(password, salt);
+    var UIDData      = create_hash(email, salt);
+    var token        = create_auth_token(salt, passwordData['hash']);
+    console.log(salt);
+    console.log(passwordData['hash']);
+    console.log(UIDData['hash']);
+    console.log(token);
+    return {
+        salt: salt,
+        passHash: passwordData['hash'],
+        UID: UIDData['hash'],
+        token: token
+    };
+};
+
+
+var create_new_user = function (req) {
+    // check for duplicate
+    // Also return redirect
+    var userCredentials = create_user_creds(req.email, req.pass1);
+    //        var name = req.name[0].toUpperCase() + req.name.slice(1);
+    db_new_user(userCredentials['UID'],
+                req.email,
+                req.name,
+                req.dname,
+                "EOF",
+                userCredentials['salt'],
+                userCredentials['passHash'],
+                userCredentials['token']);
+    
+    
+    return {
+        success: true,
+        cookie: userCredentials['UID'] + "|" + userCredentials['token'],
+        info: "Signup successful. Logging in...",
+    };
+};
+
+
 
 // Listens for the index page request
 app.get("/", function(req, res) {
@@ -121,18 +217,17 @@ app.post("/API-signup", function(req, res) {
     var status = 0;
     var payload = {success:false, cookie:"", info:""};
     
+    /* Validate structre, types & existence of incoming request */
     if (validate_req(req.body)) {
         status = 200;
         var formatStatus = validate_format(req.body);
         
-        if (formatStatus['valid']) {
-            payload['success'] = true;
-            payload['cookie']  = "hehehehehhe1233444";
-            payload['info']    = "Signup Successful!";
-
+        if (formatStatus == 0) {
+            payload = create_new_user(req.body);            
+            
         } else {
             var info = "";
-            switch (formatStatus['error']) {
+            switch (formatStatus) {
                 case 1:
                     info = "Your name must contain letters only!";
                     break;
@@ -164,13 +259,18 @@ app.post("/API-signup", function(req, res) {
             payload['info'] = info;
         }
         
-//        var name = req.name[0].toUpperCase() + req.name.slice(1);
     } else {
         status = 400;
         payload['info'] = "Bad request formatting >:(";
     }
     res.status(status)
-    res.send(payload);
+    
+    // This is purposefully slowing down the server response time, NEEDS to
+    // be removed as the site scales up. This is done currently to show off 
+    // the nice animation effect on the client side.
+    setTimeout(function () {
+        res.send(payload);
+    }, 1500);
     
 });
 
@@ -202,3 +302,4 @@ app.delete("*", function (req, res) {
     res.status(403);
     res.send("Not authorized to DELETE");
 });
+
