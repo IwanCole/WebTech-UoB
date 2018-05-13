@@ -27,3 +27,24 @@ Login:
     Return error
     Cookies / session token
     
+POST:
+    Create user profile
+    
+GET:
+    User Profile
+
+PUT:
+    Update User Profile
+
+DELETE:
+    Remove user profile
+
+Sockets:
+    Chat
+    
+Server-side validating requests:
+    Length
+    Type
+    Keys for types
+    Data types
+    Formatting
