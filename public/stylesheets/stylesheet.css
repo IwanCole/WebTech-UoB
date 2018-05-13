@@ -277,8 +277,13 @@ input, input:focus {
     display: inline-block;
     background-color: #ffffff;
     position: relative;
+    opacity: 1;
     margin-bottom: -12px;
     padding: 0 8px 0 8px;
+}
+.signup > .signup-glitch-fix {
+/*    background-color: rgba(255, 255, 255, 0); */
+    opacity: 0 !important;
 }
 .signup > input, .login > input {
     color: #4F0721;
