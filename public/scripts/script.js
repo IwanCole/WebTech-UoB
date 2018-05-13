@@ -6,7 +6,9 @@ var toggle_blackout = function (show) {
     if (show) {
 //        $(".full-page-cover").css("z-index", "1");
         $(".full-page-cover").addClass("full-page-cover-active");
+        $(".signup > .sub-text").addClass("signup-glitch-fix");
     } else {
+        $(".signup > .sub-text").removeClass("signup-glitch-fix");
         $(".full-page-cover").removeClass("full-page-cover-active");
 //        $(".full-page-cover").css("z-index", "-1");
     }
@@ -29,7 +31,7 @@ var create_popup = function(text, status) {
 };
 
 var create_cover = function(text) {
-    $(".status-cover-text").text(text + "\nPlease click to dismiss.");
+    $(".status-cover-text").html(text + "<br>Please click to dismiss.");
     toggle_blackout(true);
     $(".status-cover").addClass("status-cover-active");
     $(".status-cover").click(function () {
@@ -75,7 +77,7 @@ var post_signup = function () {
 
 
 
-var test = function () {
+function test() {
     $(".home-signup-btn").toggleClass("home-signup-btn-hide");
     $(".signup").toggleClass("signup-hide");
 };
@@ -94,8 +96,8 @@ var handler_signup = function () {
                 $(".home-signup").css("overflow", "inherit");
             });
         } else {
-//            $(".home-signup-btn").addClass("home-signup-btn-hide");
-//            $(".signup").addClass("signup-hide anim-signup-spin");
+            $(".home-signup-btn").addClass("home-signup-btn-hide");
+            $(".signup").addClass("signup-hide anim-signup-spin");
             post_signup();
         }
     });
