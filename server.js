@@ -16,31 +16,74 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
+var globalEmails = {};
 
-/* ---------------------------------------------
+
+
+/* =============================================
 
             Database functions
 
----------------------------------------------- */
+============================================== */
 var db_init = function() {
-    db.run("create table users (uid, email, name, dname, picloc, salt, passhash, token)");
+    db.run("CREATE TABLE IF NOT EXISTS users (uid, email, name, dname, picloc, salt, passhash, token)");
 };
 
+
+/* ---------------------------------------------
+
+Create a new entry for new user in USERS table
+
+---------------------------------------------- */
 var db_new_user = function(UID, email, name, dname, picloc, salt, passHash, token) {
-    db.run("insert into users (uid, email, name, dname, picloc, salt, passhash, token) values(?, ?, ?, ?, ?, ?, ?, ?)", [UID, email, name, dname, picloc, salt, passHash, token], function (err) {
-        console.log(err);
+    db.run("INSERT INTO users (uid, email, name, dname, picloc, salt, passhash, token) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [UID, email, name, dname, picloc, salt, passHash, token], function (err) {
+        if (err != null) {
+            console.log(err);
+        }
     });
 };
 
 
+/* ---------------------------------------------
 
-// Webserver listens on port 8080, serves the webpages
+Get all registered emails from USERS table
+
+---------------------------------------------- */
+var db_get_emails = function () {
+    db.all("SELECT email FROM users", function (err, row) {
+        if (err == null) {
+            var i = 0;
+            while (i < row.length) {
+                globalEmails[row[i]['email'].toLowerCase()] = 1;
+                i++;
+            }
+        }
+    });
+}
+
+
+/* ---------------------------------------------
+
+Start the web server, init the database
+
+---------------------------------------------- */
 app.listen(8080, function() {
     console.log('Express HTTP server on listening on port 8080');
-    db.serialize(db_init); 
+    db.serialize(db_init);
+    db_get_emails();
 });
 
+//setInterval(function() {
+//    console.log(globalEmails);
+//}, 8000);
 
+
+
+/* =============================================
+
+                Helper functions
+
+============================================== */
 /* ---------------------------------------------
 
 Validate the data is ready to be operated on
@@ -132,6 +175,21 @@ var validate_format = function(req) {
 
 /* ---------------------------------------------
 
+Check if email is associated with existing account
+Return True or False depending on this
+
+---------------------------------------------- */
+var validate_email_exists = function (email) {
+    var exists = false;
+    if (globalEmails[email] != undefined) {
+        exists = true;
+    }
+    return exists;
+}
+
+
+/* ---------------------------------------------
+
 Gen (Blowfish based) hash from plaintext and Salt
 
 ---------------------------------------------- */
@@ -183,35 +241,71 @@ var create_user_creds = function(email, password) {
 };
 
 
+/* ---------------------------------------------
+
+Create a new user account from start to finish:
+    Check if email is already registered
+    Generate hashed credentials for cookies / DB
+    Insert new record into DB
+    Return cookies to user if successful
+    Return appropriate error otherwise
+
+---------------------------------------------- */
 var create_new_user = function (req) {
-    // check for duplicate
     // Also return redirect
-    var userCredentials = create_user_creds(req.email, req.pass1);
-    //        var name = req.name[0].toUpperCase() + req.name.slice(1);
-    db_new_user(userCredentials['UID'],
-                req.email,
-                req.name,
-                req.dname,
-                "EOF",
-                userCredentials['salt'],
-                userCredentials['passHash'],
-                userCredentials['token']);
-    
-    
-    return {
-        success: true,
-        cookie: userCredentials['UID'] + "|" + userCredentials['token'],
-        info: "Signup successful. Logging in...",
-    };
+    if (!validate_email_exists(req.email.toLowerCase())) {
+        globalEmails[req.email.toLowerCase()] = 1;
+        var userCredentials = create_user_creds(req.email, req.pass1);
+        var name  = req.name[0].toUpperCase() + req.name.slice(1);
+        var dname = req.dname[0].toUpperCase() + req.dname.slice(1);
+        db_new_user(userCredentials['UID'],
+                    req.email.toLowerCase(),
+                    name,
+                    dname,
+                    "EOF",
+                    userCredentials['salt'],
+                    userCredentials['passHash'],
+                    userCredentials['token']);
+
+        return {
+            success: true,
+            cookie: userCredentials['UID'] + "|" + userCredentials['token'],
+            info: "Signup successful. Logging in...",
+        };
+    } else {
+        return {
+            success: false,
+            cookie: "",
+            info: "Email entered already associated to existing account. Please contact the admins if you require assistance.",
+        };
+    }
 };
 
 
 
-// Listens for the index page request
+/* =============================================
+
+                Routing functions
+
+============================================== */
+/* ---------------------------------------------
+
+Default route when reaching the home index
+
+---------------------------------------------- */
 app.get("/", function(req, res) {
     res.sendFile("/public/");
 });
 
+
+/* ---------------------------------------------
+
+Handle requests to the Signup API
+No html page here, used by POST requests to send
+data from the signup form. Validate all data 
+before processing, send appropriate response.
+
+---------------------------------------------- */
 app.post("/API-signup", function(req, res) {
     console.log(req.body);
     var status = 0;
@@ -275,8 +369,11 @@ app.post("/API-signup", function(req, res) {
 });
 
 
+/* ---------------------------------------------
 
-// Catch all other unsupported requests
+Catch all other unsupported requests
+
+---------------------------------------------- */
 var handle_bad_req = function(req) {
     var fullUrl = req.originalUrl;
     console.log("[SERVR] Bad Request: " + fullUrl);

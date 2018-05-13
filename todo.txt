@@ -11,6 +11,9 @@ PAGE LIST:
 https://coolors.co/d81159-8f2d56-218380-fbb13c-73d2de
 https://www.siteinspire.com/websites/7981-webflow-ecommerce
 
+Database:
+    Add callbacks to catch errors 
+
 Home:
     Add scrolling images
     More info?
