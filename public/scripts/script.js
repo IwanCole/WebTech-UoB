@@ -4,15 +4,14 @@
 
 var toggle_blackout = function (show) {
     if (show) {
-//        $(".full-page-cover").css("z-index", "1");
         $(".full-page-cover").addClass("full-page-cover-active");
         $(".signup > .sub-text").addClass("signup-glitch-fix");
     } else {
         $(".signup > .sub-text").removeClass("signup-glitch-fix");
         $(".full-page-cover").removeClass("full-page-cover-active");
-//        $(".full-page-cover").css("z-index", "-1");
     }
 };
+
 
 var create_popup = function(text, status) {
     $(".status-popup-text").text(text);
@@ -30,6 +29,7 @@ var create_popup = function(text, status) {
     });
 };
 
+
 var create_cover = function(text) {
     $(".status-cover-text").html(text + "<br>Please click to dismiss.");
     toggle_blackout(true);
@@ -39,8 +39,6 @@ var create_cover = function(text) {
         $(".status-cover").removeClass("status-cover-active");
     });
 };
-
-
 
 
 var toggle_login = function (show) {
@@ -59,19 +57,27 @@ var post_signup = function () {
         dname: inputs[4].value
     };
     
-    
+    $(".home-signup-btn").addClass("home-signup-btn-hide");
+    $(".signup").addClass("signup-hide anim-signup-spin");
     $.post("/API-signup", payload)
            .done(function (data, staus) {
                 console.log(data);
                 if (data['success']) {
-                    create_popup("Signup submitted", 0);
+                    create_popup(data['info'], 0);
+                    
+                    Cookies.set("loginAuth", data['cookie']);
+                    
                 } else {
                     create_cover(data['info']);
+                    $(".home-signup-btn").removeClass("home-signup-btn-hide");
+                    $(".signup").removeClass("signup-hide anim-signup-spin");
                 }
             })
            .fail(function (xhr, error, statusCode) {
                 create_popup((xhr.status.toString() + " " + statusCode), 2);
                 console.log("xhr: " + xhr + "\nError: " + error + "\nStatus: " + statusCode);
+                $(".home-signup-btn").removeClass("home-signup-btn-hide");
+                $(".signup").removeClass("signup-hide anim-signup-spin");
             });
 };
 
@@ -96,8 +102,6 @@ var handler_signup = function () {
                 $(".home-signup").css("overflow", "inherit");
             });
         } else {
-            $(".home-signup-btn").addClass("home-signup-btn-hide");
-            $(".signup").addClass("signup-hide anim-signup-spin");
             post_signup();
         }
     });
@@ -129,6 +133,7 @@ var handler_login = function () {
 
 
 var main = function () {
+    $(".javascript-warning").remove();
     handler_signup();
     handler_login();
 };
