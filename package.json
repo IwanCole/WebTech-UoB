@@ -4,6 +4,7 @@
   "description": "Dog version of Tinder!",
   "main": "server.js",
   "scripts": {
+    "start": "del data.db && node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Iwan Pettifer-Cole, Eleanor Cox",
