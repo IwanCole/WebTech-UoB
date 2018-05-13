@@ -2,17 +2,17 @@
 /*global $, jQuery, alert*/
 'use strict';
 
-var toggle_page_cover = function (show) {
+var toggle_blackout = function (show) {
     if (show) {
-        $(".full-page-cover").fadeIn(1);
-        $(".full-page-cover").css("opacity", "0.7");
+//        $(".full-page-cover").css("z-index", "1");
+        $(".full-page-cover").addClass("full-page-cover-active");
     } else {
-        $(".full-page-cover").css("opacity", "0");
-        $(".full-page-cover").delay(400).fadeOut(1);
+        $(".full-page-cover").removeClass("full-page-cover-active");
+//        $(".full-page-cover").css("z-index", "-1");
     }
 };
 
-var popup = function(text, status) {
+var create_popup = function(text, status) {
     $(".status-popup-text").text(text);
     if (status == 0) {
         $(".status-popup-type").css("background-color", "#00d400");
@@ -28,6 +28,18 @@ var popup = function(text, status) {
     });
 };
 
+var create_cover = function(text) {
+    $(".status-cover-text").text(text + "\nPlease click to dismiss.");
+    toggle_blackout(true);
+    $(".status-cover").addClass("status-cover-active");
+    $(".status-cover").click(function () {
+        toggle_blackout(false);
+        $(".status-cover").removeClass("status-cover-active");
+    });
+};
+
+
+
 
 var toggle_login = function (show) {
     $(".login").show();
@@ -37,7 +49,7 @@ var toggle_login = function (show) {
 var post_signup = function () {
     var inputs = $(".signup-input");
     var payload = {
-        type:  "signup",
+        type:  "t_signup",
         name:  inputs[0].value,
         email: inputs[1].value,
         pass1: inputs[2].value,
@@ -49,13 +61,18 @@ var post_signup = function () {
     $.post("/API-signup", payload)
            .done(function (data, staus) {
                 console.log(data);
-                popup("Signup submitted", 0);
+                if (data['success']) {
+                    create_popup("Signup submitted", 0);
+                } else {
+                    create_cover(data['info']);
+                }
             })
            .fail(function (xhr, error, statusCode) {
-                popup((xhr.status.toString() + " " + statusCode), 2);
+                create_popup((xhr.status.toString() + " " + statusCode), 2);
                 console.log("xhr: " + xhr + "\nError: " + error + "\nStatus: " + statusCode);
             });
 };
+
 
 
 var test = function () {
@@ -77,15 +94,15 @@ var handler_signup = function () {
                 $(".home-signup").css("overflow", "inherit");
             });
         } else {
-            $(".home-signup-btn").addClass("home-signup-btn-hide");
-            $(".signup").addClass("signup-hide anim-signup-spin");
+//            $(".home-signup-btn").addClass("home-signup-btn-hide");
+//            $(".signup").addClass("signup-hide anim-signup-spin");
             post_signup();
         }
     });
     
     
     $(".signup-input").on("input", function () {
-        var count = 0;
+        count = 0;
         var inputs = $(".signup-input");
         $.each(inputs, function (i) {
             if (inputs[i].value.length > 0) {
@@ -94,6 +111,7 @@ var handler_signup = function () {
         });
         var alpha = count * 0.2;
         if (count == 5) { filled = true; }
+        else { filled = false; }
         $("body").css("background-color", "rgba(216, 17, 89, " + alpha.toString() + ")");
     });
     
@@ -101,7 +119,7 @@ var handler_signup = function () {
 
 var handler_login = function () {
     $(".current-user-name").click(function () {
-        toggle_page_cover(true);
+        toggle_blackout(true);
         toggle_login(true);
     });
 };
