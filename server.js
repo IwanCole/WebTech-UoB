@@ -466,12 +466,13 @@ Not currently implemented properly
 ---------------------------------------------- */
 app.get("/profile", function (req, res) {
     if (req.query.id != undefined) {
-        console.log("This is a valid request");
-    } else {
-        console.log("This is not a valid request");
-    }
-    res.status(200);
-    res.send("Landed!");
+        if (req.query.id != "") {
+            if (globalIDs[req.query.id] != undefined) {
+                console.log("This is a valid request");
+                res.send("Landed!");                
+            } else { res.redirect(303, "/404"); }
+        } else { res.redirect(303, "/404"); }
+    } else { res.redirect(303, "/404"); }
 });
 
 /* ---------------------------------------------
