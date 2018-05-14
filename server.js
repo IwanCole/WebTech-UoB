@@ -583,7 +583,7 @@ var handle_bad_req = function(req) {
 app.get("*", function (req, res) {
     handle_bad_req(req);
     res.status(404);
-    res.send("Content not found.");
+    res.sendFile(path.join(__dirname, "/public/404.html"));
 });
 app.post("*", function (req, res) {
     handle_bad_req(req);

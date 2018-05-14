@@ -1,0 +1,68 @@
+@font-face {
+    font-family: 'Gugi';
+    src: url('Gugi-Regular.ttf') format('truetype');
+}
+
+html {
+    margin: 0;
+    font-family: 'Gugi', sans-serif;
+    background-color: #ffffff;
+    overflow-x: hidden;
+}
+body {
+    margin: 0;
+}
+.noTouch {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.missing-text, .missing-sub-text {
+    color: #d9316f;
+    width: 70%;
+    font-size: 60px;
+    text-align: center;
+    margin: 50px auto;
+}
+.missing-sub-text {
+    font-size: 25px;
+    margin-bottom: 300px;
+}
+.missing-pic {
+    width: 200px;
+    bottom: 50px;
+    left: 20px;
+    position: fixed;
+    display: block;
+    animation: slideUp 1.3s ease-out 1.5s 1 forwards;
+    transform: translate(0, 250px);
+}
+@keyframes slideUp {
+    0% {
+        transform: translate(0, 250px);
+    }
+    100% {
+        transform: translate(0, 0px);
+    }
+}
+
+
+footer {
+    bottom: 0;
+    padding: 2.5px;
+    box-sizing: border-box;
+    position: fixed;
+    height: 30px;
+    background-color: #8F2D56;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+footer > .sub-text {
+    color: #ffffff;
+    font-size: 20px;
+    margin: 0;
+}
