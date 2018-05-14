@@ -41,11 +41,6 @@ var create_cover = function(text) {
 };
 
 
-var toggle_login = function (show) {
-    $(".login").show();
-};
-
-
 var post_signup = function () {
     var inputs = $(".signup-input");
     var payload = {
@@ -56,7 +51,7 @@ var post_signup = function () {
         pass2: inputs[3].value,
         dname: inputs[4].value
     };
-    
+
     $(".home-signup-btn").addClass("home-signup-btn-hide");
     $(".signup").addClass("signup-hide anim-signup-spin");
     $.post("/API-signup", payload)
@@ -64,7 +59,7 @@ var post_signup = function () {
                 console.log(data);
                 if (data['success']) {
                     create_popup(data['info'], 0);
-                    
+                    window.location.replace("/me");
                 } else {
                     create_cover(data['info']);
                     $(".home-signup-btn").removeClass("home-signup-btn-hide");
@@ -80,18 +75,39 @@ var post_signup = function () {
 };
 
 
+var post_login = function () {
+    var inputs = $(".login-input");
+    var payload = {
+        type:  "t_login",
+        email: inputs[0].value,
+        pass1: inputs[1].value
+    };
 
-function test() {
-    $(".home-signup-btn").toggleClass("home-signup-btn-hide");
-    $(".signup").toggleClass("signup-hide");
+    $(".home-login").removeClass("home-login-active");
+    $.post("/API-login", payload)
+           .done(function (data, staus) {
+                console.log(data);
+                if (data['success']) {
+                    window.location.replace("/me");
+                } else {
+                    create_cover(data['info']);
+                    $(".home-login").addClass("home-login-active");
+                }
+            })
+           .fail(function (xhr, error, statusCode) {
+                create_popup((xhr.status.toString() + " " + statusCode), 2);
+                console.log("xhr: " + xhr + "\nError: " + error + "\nStatus: " + statusCode);
+                $(".home-login").addClass("home-login-active");
+            });
 };
+
 
 var handler_signup = function () {
     var count = 0;
     var filled = false;
-    
+
     $(".home-signup-btn").click(function () {
-        
+
         if (!filled) {
             $(".home-welcome").addClass("home-welcome-hidden");
             $(".home-signup").addClass("signup-active");
@@ -103,8 +119,8 @@ var handler_signup = function () {
             post_signup();
         }
     });
-    
-    
+
+
     $(".signup-input").on("input", function () {
         count = 0;
         var inputs = $(".signup-input");
@@ -118,16 +134,25 @@ var handler_signup = function () {
         else { filled = false; }
         $("body").css("background-color", "rgba(216, 17, 89, " + alpha.toString() + ")");
     });
-    
+
 };
+
 
 var handler_login = function () {
     $(".current-user-name").click(function () {
-        toggle_blackout(true);
-        toggle_login(true);
+        $(".home-signup").addClass("signup-active");
+        $(".home-signup").css("overflow", "inherit");
+        $(".home-welcome").addClass("home-welcome-hidden");
+        $(".home-login").addClass("home-login-active");
+        $("body").css("background-color", "rgba(216, 17, 89, 1)");
+        $(".home-signup-btn").addClass("home-signup-btn-hide");
+        $(".signup").addClass("signup-hide anim-signup-spin");
+    });
+
+    $(".home-login-btn").click(function () {
+        post_login();
     });
 };
-
 
 
 var main = function () {
