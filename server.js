@@ -78,13 +78,13 @@ to THEIR user page, else return to home (/).
 var db_cookie_to_ID = function (UID, token, res) {
     db.all("SELECT uid as UID, id as id, token as token FROM users", function (err, rows) {
         if (err == null) {
-            console.log(rows);
+            // console.log(rows);
             var i = 0;
             var found = false
             while (i < rows.length) {
                 var item = rows[i];
                 if (UID == item['UID'] && token == item['token']) {
-                    res.redirect(303, "/" + item['id']);
+                    res.redirect(303, "/profile?id=" + item['id']);
                     found = true;
                     break;
                 }
@@ -97,6 +97,64 @@ var db_cookie_to_ID = function (UID, token, res) {
             console.log(err);
             res.redirect(303, "/");
         }
+    });
+}
+
+
+var db_attempt_auth = function (email, password, res) {
+    db.all("SELECT uid as UID, id as id, email as email, salt as salt, passHash as passHash, token as token FROM users", function (err, rows) {
+        status = 0;
+        payload = {success:false, cookie:"", info:""};
+        if (err == null) {
+            var i = 0;
+            var found = false;
+            var foundAccount = {};
+
+            while (i < rows.length) {
+                var item = rows[i];
+                if (item['email'] == email) {
+                    found = true;
+                    foundAccount = item;
+                    break;
+                }
+                i++;
+            }
+
+            if (found) {
+                var passHashAttempt = create_hash(password, item['salt']);
+                if (passHashAttempt['hash'] == item['passHash']) {
+
+                    var cookie = create_login_cookie(item['UID'], item['token']);
+                    status = 200;
+                    payload["success"] = true;
+                    payload["cookie"]  = cookie;
+                    payload["info"]    = "Login successful, redirecting...";
+                    res.cookie("loginAuth", cookie,
+                              { expires: new Date(Date.now() + 90000000000),
+                                encode: String});
+
+                } else {
+                    // password incorrect??
+                    payload["info"] = "Email address or password is incorrect. Please try again.";
+                    status = 200;
+                }
+            } else {
+                // Email provided not registered
+                payload["info"] = "Email address or password is incorrect. Please try again.";
+                status = 200;
+            }
+        } else {
+            console.log(err);
+            payload["info"] = "Something went wrong. Please try again.";
+            status = 400;
+        }
+        res.status(status);
+        // This is purposefully slowing down the server response time, NEEDS to
+        // be removed as the site scales up. This is done currently to show off
+        // the nice animation effect on the client side.
+        setTimeout(function () {
+            res.send(payload);
+        }, 1000);
     });
 }
 
@@ -169,7 +227,16 @@ var validate_req = function(req) {
 
         // Login Request
         else if (req.type == "t_login") {
-
+            if (Object.keys(req).length == 3) {
+                var expected = ["type", "email", "pass1"];
+                var i = 0;
+                var actual = Object.keys(req);
+                while (i < 6) {
+                    if (expected[i] != actual[i]) { return false; }
+                    if (req[expected[i]] == "") { return false; }
+                    i++;
+                }
+            } else { return false; }
         }
 
         // Get profile requests
@@ -304,6 +371,16 @@ var create_user_creds = function(email, password) {
 
 /* ---------------------------------------------
 
+Create the loginAuth cookie to give to client
+
+---------------------------------------------- */
+var create_login_cookie = function (UID, token) {
+    return  UID + "|" + token;
+}
+
+
+/* ---------------------------------------------
+
 Create a new user account from start to finish:
     Check if email is already registered
     Generate hashed credentials for cookies / DB
@@ -331,14 +408,14 @@ var create_new_user = function (req) {
 
         return {
             success: true,
-            cookie: userCredentials['UID'] + "|" + userCredentials['token'],
+            cookie: create_login_cookie(userCredentials['UID'], userCredentials['token']),
             info: "Signup successful. Logging in...",
         };
     } else {
         return {
             success: false,
             cookie: "",
-            info: "Email entered already associated to existing account. Please contact the admins if you require assistance.",
+            info: "Email entered already associated to existing account. Please login or contact the admins if you require assistance.",
         };
     }
 };
@@ -360,6 +437,11 @@ app.get("/", function(req, res) {
 });
 
 
+/* ---------------------------------------------
+
+Redirect any logged-in user to their profile
+
+---------------------------------------------- */
 app.get("/me", function (req, res) {
     if (req.cookies['loginAuth'] != undefined) {
         var cookie = req.cookies['loginAuth'];
@@ -370,8 +452,49 @@ app.get("/me", function (req, res) {
                 db_cookie_to_ID(UID, token, res);
             }
         }
+    } else {
+        res.redirect(303, "/");
     }
 });
+
+
+/* ---------------------------------------------
+
+Load a user profile page, with the query ?id
+Not currently implemented properly
+
+---------------------------------------------- */
+app.get("/profile", function (req, res) {
+    if (req.query.id != undefined) {
+        console.log("This is a valid request");
+    } else {
+        console.log("This is not a valid request");
+    }
+    res.status(200);
+    res.send("Landed!");
+});
+
+/* ---------------------------------------------
+
+Handle requests to the Login API
+Runs all the user authenticating logic
+
+---------------------------------------------- */
+app.post("/API-login", function(req, res) {
+    console.log(req.body);
+    var status = 0;
+    var payload = {success:false, cookie:"", info:""};
+
+    /* Validate structre, types & existence of incoming request */
+    if (validate_req(req.body)) {
+        db_attempt_auth(req.body.email, req.body.pass1, res);
+    } else {
+        res.status(400);
+        payload['info'] = "Bad request formatting >:(";
+        res.send(payload);
+    }
+});
+
 
 /* ---------------------------------------------
 
