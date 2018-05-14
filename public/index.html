@@ -2,7 +2,7 @@
     <head>
         <title>Paw Pals</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
+
         <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css">
         <link rel="shortcut icon" type="image/x-icon" href="media/favicon.ico">
 <!--        <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">-->
@@ -17,21 +17,31 @@
         <div class="status-popup"><div class="status-popup-type"></div><p class="status-popup-text">Error processing</p></div>
         <div class="full-page-cover"></div>
         <div class="status-cover"><div class="status-cover-type"></div><p class="status-cover-text">Error doing something</p></div>
-        
+
         <div class="page-container">
-            
+
             <div class="current-login">
                 <span class="current-user-pic">
                 </span>
                 <button class="sub-text current-user-name">Log In</button>
             </div>
-            
+
+            <div class="home-login">
+                <form class="login">
+                    <p class="sub-text">Email Address</p>
+                    <input type="text" class="login-input" name="signup-email">
+                    <p class="sub-text">Password</p>
+                    <input type="password" class="login-input" name="signup-pw">
+                    <button type="button" class="home-login-btn">Login</button>
+                </form>
+            </div>
+
             <div class="home-welcome">
                 <h1 class="title anim-fade-in">Company Name</h1>
                 <p class="sub-title anim-fade-in">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non augue dui. Aliquam facilisis est tempor ex blandit aliquam. Suspendisse accumsan, lorem vitae congue faucibus, tellus augue dictum mauris, quis fermentum elit leo non nisl. </p>
                 <span class="divider anim-divider-expand"></span>
             </div>
-            
+
             <div class="home-signup">
                 <form class="signup">
                     <p class="sub-text">First Name</p>
@@ -46,23 +56,11 @@
                     <input type="" class="signup-input" name="signup-dname">
                 </form>
             </div>
-            
+
             <button type="button" class="home-signup-btn anim-fadein-pulse">Signup now</button>
             
-            
-            <div class="home-login">
-                <form class="login">
-                    <p class="sub-text">Email Address</p>
-                    <input type="text" class="login-input" name="signup-email">
-                    <p class="sub-text">Password</p>
-                    <input type="password" class="login-input" name="signup-pw">
-                </form>
-            </div>
-            
-            
-        
         </div>
-        
+
         <footer class="site-footer">
             <p class="sub-text">© &nbsp;&nbsp;University of Bristol &nbsp;&nbsp;&nbsp;Iwan and Eleanor &nbsp;&nbsp;&nbsp;2018</p>
         </footer>
