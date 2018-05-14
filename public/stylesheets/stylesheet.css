@@ -211,30 +211,37 @@ input, input:focus {
     border-radius: 2px;
     margin: 30px auto 40px auto;
 
-   opacity: 0;
+    opacity: 0;
     animation-delay: 1.5s;
 }
 
-.home-signup-btn {
+.home-signup-btn, .home-login-btn {
     border: none;
     font-size: 25px;
     background-color: #D81159;
     color: #ffffff;
-    width: 270px;
     margin: 0 auto;
-    height: 60px;
     border-radius: 35px;
     transform: translate(0, 0px);
     transition-duration: 200ms;
-
+}
+.home-signup-btn {
+    width: 270px;
+    height: 60px;
     opacity: 0;
     animation-delay: 2s !important;
 }
-.home-signup-btn:active {
+.home-login-btn {
+    width: 200px;
+    height: 50px;
+    opacity: 1;
+    transition-duration: 100ms;
+}
+.home-signup-btn:active, .home-login-btn:active {
     transform: translate(0, 3px);
     background-color: #ad0b45;
 
-    opacity: 0;
+/*    opacity: 0;*/
     animation-delay: 2s !important;
 }
 .home-signup-btn-hide {
@@ -281,14 +288,19 @@ input, input:focus {
     border-radius: 10px;
     margin: 0 0 -100px 0;
 }
+.signup > *, .login > * {
+    text-align: center;
+}
 .signup > * {
     display: block;
     margin: 5px auto;
-    text-align: center;
     transition-duration: 500ms;
-
 }
-.signup > p {
+.login > * {
+    display: inline-block;
+    margin: 8px auto;
+}
+.signup > p, .login > p {
     font-size: 14px;
     display: inline-block;
     background-color: #ffffff;
@@ -307,12 +319,9 @@ input, input:focus {
     border-style: solid;
     border-width: 1px;
     padding: 8px;
-    border-radius: 5px;
-}
-.signup > input {
-    font-size: 20px;
-    width: 350px;
     border-radius: 8px;
+    width: 350px;
+    font-size: 20px;
 }
 .signup-hide {
     transition-delay: 0ms;
@@ -338,9 +347,22 @@ input, input:focus {
 .signup-hide > p {
     font-size: 0px;
 }
-.signup, .login {
-/*    display: none;*/
-/*    opacity: 0;*/
+.home-login {
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    margin-left: -200px;
+    transition-delay: 0ms;
+    transition-duration: 500ms;
+}
+.home-login-active {
+    max-height: 500px;  
+}
+.login {    
+    width: 400px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: #ffffff;
 }
 
 
