@@ -65,8 +65,6 @@ var post_signup = function () {
                 if (data['success']) {
                     create_popup(data['info'], 0);
                     
-                    Cookies.set("loginAuth", data['cookie']);
-                    
                 } else {
                     create_cover(data['info']);
                     $(".home-signup-btn").removeClass("home-signup-btn-hide");
