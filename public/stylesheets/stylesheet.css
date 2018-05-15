@@ -9,6 +9,7 @@
 
 html {
     margin: 0;
+    height: 100%;
     font-family: 'Gugi', sans-serif;
     background-color: #ffffff;
 }
@@ -17,6 +18,7 @@ input, select, textarea {
 }
 body {
     margin: 0;
+    height: 100%;
     background-color: #FFFFFF;
     transition-duration: 1s;
 }
@@ -69,6 +71,7 @@ input, input:focus {
     font-weight: bold;
     border: 4px #333;
     border-bottom-style: solid;
+    z-index: 3;
 }
 .status-popup {
     font-family: Courier New;
@@ -79,7 +82,6 @@ input, input:focus {
 }
 .status-cover {
     left: 50%;
-    z-index: 1;
     bottom: 50%;
     width: 500px;
     display: none;
@@ -123,7 +125,7 @@ input, input:focus {
 }
 .full-page-cover-active {
     opacity: 0.7;
-    z-index: 1;
+    z-index: 2;
 }
 
 
@@ -302,8 +304,8 @@ input, input:focus {
 }
 .signup > p, .login > p {
     font-size: 14px;
-    display: inline-block;
-/*    width: fit-content;*/
+    display: block;
+    width: fit-content;
     background-color: #ffffff;
     position: relative;
     opacity: 1;
@@ -364,6 +366,7 @@ input, input:focus {
     text-align: center;
     border-radius: 10px;
     background-color: #ffffff;
+    padding: 20px 10px 20px 10px;
 }
 
 
