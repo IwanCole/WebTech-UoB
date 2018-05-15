@@ -303,6 +303,7 @@ input, input:focus {
 .signup > p, .login > p {
     font-size: 14px;
     display: inline-block;
+/*    width: fit-content;*/
     background-color: #ffffff;
     position: relative;
     opacity: 1;
