@@ -101,6 +101,21 @@ var post_login = function () {
             });
 };
 
+//var post_login_cookie = function () {
+//    $.post("/API-login-cookie", 1)
+//           .done(function (data, staus) {
+//                console.log(data);
+//                if (data['success']) {
+//                    window.location.replace("/me");
+//                }  
+//            })
+//           .fail(function (xhr, error, statusCode) {
+//                Cookies.remove("loginAuth");
+//                Cookies.remove("session");
+//                window.location.reload();
+//            });
+//}
+
 
 var handler_signup = function () {
     var count = 0;
@@ -117,6 +132,14 @@ var handler_signup = function () {
             });
         } else {
             post_signup();
+        }
+    });
+    
+    $(".signup-input").keydown(function (key) {
+        if (filled) {
+            if(key.keyCode == 13) {
+                post_signup();
+            } 
         }
     });
 
@@ -143,14 +166,24 @@ var handler_login = function () {
         $(".home-signup").addClass("signup-active");
         $(".home-signup").css("overflow", "inherit");
         $(".home-welcome").addClass("home-welcome-hidden");
-        $(".home-login").addClass("home-login-active");
         $("body").css("background-color", "rgba(216, 17, 89, 1)");
-        $(".home-signup-btn").addClass("home-signup-btn-hide");
-        $(".signup").addClass("signup-hide anim-signup-spin");
+        
+//        if (Cookies.get("loginAuth") != undefined) {
+//            post_login_cookie();
+//        } else {
+            $(".home-login").addClass("home-login-active");
+            $(".home-signup-btn").addClass("home-signup-btn-hide");
+            $(".signup").addClass("signup-hide anim-signup-spin");
+//        }
     });
 
     $(".home-login-btn").click(function () {
         post_login();
+    });
+    $(".login-input").keydown(function (key) {
+        if(key.keyCode == 13) {
+            post_login();
+        } 
     });
 };
 
