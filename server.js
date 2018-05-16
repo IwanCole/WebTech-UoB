@@ -138,6 +138,9 @@ var db_attempt_auth = function (email, password, res) {
                               { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
                     var session = create_session_token(item['name'], item['id']);
+                    res.cookie("myID", item['id'], 
+                               { expires: new Date(Date.now() + 90000000000),
+                                encode: String});
                     res.cookie("session", session,
                               { expires: 0,
                                 encode: String});
@@ -486,6 +489,7 @@ var create_new_user = function (req) {
             success: true,
             cookie: create_login_cookie(userCredentials['UID'], userCredentials['token']),
             session: userCredentials['session'],
+            myID: userCredentials['ID'],
             info: "Signup successful. Logging in...",
         };
     } else {
@@ -493,6 +497,7 @@ var create_new_user = function (req) {
             success: false,
             cookie: "",
             session: "",
+            myID: "",
             info: "Email entered already associated to existing account. Please login or contact the admins if you require assistance.",
         };
     }
@@ -639,7 +644,7 @@ before processing, send appropriate response.
 app.post("/API-signup", function(req, res) {
     console.log(req.body);
     var status = 0;
-    var payload = {success:false, cookie:"", info:""};
+    var payload = {success:false, cookie:"", session: "", myID: "", info:""};
 
     /* Validate structre, types & existence of incoming request */
     if (validate_req(req.body)) {
@@ -689,6 +694,9 @@ app.post("/API-signup", function(req, res) {
     }
     res.status(status)
     res.cookie("loginAuth", payload['cookie'],
+               { expires: new Date(Date.now() + 90000000000),
+                 encode: String});
+    res.cookie("myID", payload['id'], 
                { expires: new Date(Date.now() + 90000000000),
                  encode: String});
     res.cookie("session", payload['session'],
@@ -770,7 +778,12 @@ main_chat_wss.on("connection", function connection (socket) {
                             message: data
                         });
                         // send to all !!!!!!!
-                        socket.send(payload);
+                        
+                        main_chat_wss.clients.forEach(function each(client) {
+                            client.send(payload);
+                        });
+                        
+//                        socket.send(payload);
                     }
                 }
             }
