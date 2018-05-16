@@ -19,8 +19,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 
-var globalEmails = {};
-var globalIDs    = {};
+var globalEmails    = {};
+var globalIDs       = {};
+var globalSessions  = {};
 
 
 /* =============================================
@@ -91,6 +92,7 @@ var db_cookie_to_ID = function (UID, token, res) {
                 i++;
             }
             if (!found) {
+                clear_loginAuth_cookie(res);
                 res.redirect(303, "/");
             }
         } else {
@@ -132,6 +134,11 @@ var db_attempt_auth = function (email, password, res) {
                     res.cookie("loginAuth", cookie,
                               { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
+                    var session = create_session_token();
+                    res.cookie("session", session,
+                              { expires: 0,
+                                encode: String});
+                                
 
                 } else {
                     // password incorrect??
@@ -333,6 +340,14 @@ var create_auth_token = function (salt, passHash) {
     return token['hash'];
 }
 
+var create_session_token = function () {
+    var token = misc_pad_zeros(Math.floor(Math.random() * 1000000000) + 1, 11);
+    while (globalSessions[token] != undefined) {
+        token = misc_pad_zeros(Math.floor(Math.random() * 1000000000) + 1, 11);
+    }
+    globalSessions[token] = 1;
+    return token;
+}
 
 /* ---------------------------------------------
 
@@ -347,11 +362,13 @@ var create_user_creds = function(email, password) {
     var passwordData = create_hash(password, salt);
     var UIDData      = create_hash(email, salt);
     var token        = create_auth_token(salt, passwordData['hash']);
+    var session      = create_session_token();
     var ID           = misc_pad_zeros(Math.floor(Math.random() * 10000000) + 1, 9);
 
     while (globalIDs[ID] != undefined) {
         ID = misc_pad_zeros(Math.floor(Math.random() * 10000000) + 1, 9);
     }
+    
     globalIDs[ID] = 1;
 
     console.log("Salt: " + salt);
@@ -364,7 +381,8 @@ var create_user_creds = function(email, password) {
         passHash: passwordData['hash'],
         UID: UIDData['hash'],
         ID: ID,
-        token: token
+        token: token,
+        session: session
     };
 };
 
@@ -409,17 +427,30 @@ var create_new_user = function (req) {
         return {
             success: true,
             cookie: create_login_cookie(userCredentials['UID'], userCredentials['token']),
+            session: userCredentials['session'],
             info: "Signup successful. Logging in...",
         };
     } else {
         return {
             success: false,
             cookie: "",
+            session: "",
             info: "Email entered already associated to existing account. Please login or contact the admins if you require assistance.",
         };
     }
 };
 
+
+/* ---------------------------------------------
+
+Clear a loginAuth cookie from the client
+
+---------------------------------------------- */
+var clear_loginAuth_cookie = function (res) {
+    res.cookie("loginAuth", "", {maxAge: Date.now()});
+    res.clearCookie("loginAuth", "");
+    return res;
+}
 
 
 /* =============================================
@@ -450,10 +481,18 @@ app.get("/me", function (req, res) {
                 var UID = cookie.split("|")[0];
                 var token = cookie.split("|")[1];
                 db_cookie_to_ID(UID, token, res);
+            } else {
+//                res.cookie("login")
+                clear_loginAuth_cookie(res);
+                res.redirect(303, "/"); 
             }
+        } else {
+            clear_loginAuth_cookie(res);
+            res.redirect(303, "/"); 
         }
     } else {
-        res.redirect(303, "/");
+        clear_loginAuth_cookie(res);
+        res.redirect(303, "/"); 
     }
 });
 
@@ -474,6 +513,17 @@ app.get("/profile", function (req, res) {
         } else { res.redirect(303, "/404"); }
     } else { res.redirect(303, "/404"); }
 });
+
+
+app.get("/dashboard", function (req, res) {
+    
+    
+    
+    
+    
+    
+});
+
 
 /* ---------------------------------------------
 
@@ -559,6 +609,9 @@ app.post("/API-signup", function(req, res) {
     res.status(status)
     res.cookie("loginAuth", payload['cookie'],
                { expires: new Date(Date.now() + 90000000000),
+                 encode: String});
+    res.cookie("session", payload['session'],
+               { expires: 0,
                  encode: String});
 
     // This is purposefully slowing down the server response time, NEEDS to
