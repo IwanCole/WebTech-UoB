@@ -516,12 +516,19 @@ app.get("/profile", function (req, res) {
 
 
 app.get("/dashboard", function (req, res) {
-    
-    
-    
-    
-    
-    
+    if (req.cookies['session'] != undefined) {
+        if (globalSessions[req.cookies['session']] == 1) {
+            res.status(200);
+            res.sendFile(path.join(__dirname, "/public/dashboard.html"));
+            
+            
+            
+        } else {
+            
+        }
+    } else {
+        
+    }
 });
 
 
