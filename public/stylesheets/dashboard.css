@@ -5,6 +5,9 @@ body {
     height: 100vh;
     width: 100%;
 }
+.current-user-name {
+    color: #fff;
+}
 .chat-main {
     height: 85vh;
     width: 50%;
@@ -14,6 +17,11 @@ body {
     border-radius: 10px;
     margin: 0 auto;
     position: relative;
+}
+.chat-main-cont {
+    width: 100%;
+    overflow-y: scroll;
+    height: 75vh;
 }
 .chat-main-compose {
     bottom: 0px;
@@ -44,3 +52,52 @@ body {
     width: 18%;
     padding: 17px 10px;
 }
+
+
+.chat-bubble {
+    position: relative;
+    text-align: left;
+    padding-left: 10px;
+    width: 100%;
+    margin-top: 15px;
+    box-sizing: border-box;
+    animation: newChatMessage 400ms;
+}
+.chat-message-name {
+    margin: 0 0 -5px 55px;
+    font-size: 14px;
+    color: #d81159;
+}
+.chat-message-icon {
+    display: inline-block;
+    padding: 5px;
+    padding-top: 6px;
+    width: 35px;
+    box-sizing: border-box;
+    height: 35px;
+    background-color: #ad0b45;
+    border-radius: 25px;
+    font-size: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+}
+.chat-message-text {
+    display: inline-block;
+    margin: 7.5px 30px 7.5px 20px;
+    color: #840030;
+    width: 80%;
+}
+
+@keyframes newChatMessage {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+
+
+
+
+
+
+

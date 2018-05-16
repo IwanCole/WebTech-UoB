@@ -1,4 +1,5 @@
 // Required imported modules and libs
+var fs = require("fs");
 var path  = require('path');
 var sql = require("sqlite3");
 var bcrypt = require("bcrypt");
@@ -18,6 +19,8 @@ app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
+
+var main_chat_wss = new WSS({ port: 8081 });
 
 var globalEmails    = {};
 var globalIDs       = {};
@@ -104,7 +107,7 @@ var db_cookie_to_ID = function (UID, token, res) {
 
 
 var db_attempt_auth = function (email, password, res) {
-    db.all("SELECT uid as UID, id as id, email as email, salt as salt, passHash as passHash, token as token FROM users", function (err, rows) {
+    db.all("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users", function (err, rows) {
         status = 0;
         payload = {success:false, cookie:"", info:""};
         if (err == null) {
@@ -134,7 +137,7 @@ var db_attempt_auth = function (email, password, res) {
                     res.cookie("loginAuth", cookie,
                               { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
-                    var session = create_session_token();
+                    var session = create_session_token(item['name'], item['id']);
                     res.cookie("session", session,
                               { expires: 0,
                                 encode: String});
@@ -165,6 +168,49 @@ var db_attempt_auth = function (email, password, res) {
     });
 }
 
+//var db_loginAuth_cookie_check = function (req, res) {
+////    console.log("OOO : " + cookie);
+//    db.all("SELECT uid as UID, id as id, name as name, token as token FROM users", function (err, rows) {
+//        var cookie_UID = req.cookies['loginAuth'].split("|")[0];
+//        var cookie_tok = req.cookies['loginAuth'].split("|")[1];
+//        
+//        var i = 0;
+//        var found = false;
+//        var foundAccount = {};
+//
+//        while (i < rows.length) {
+//            var item = rows[i];
+//            if (item['uid'] == cookie_UID && item['token'] == cookie_tok) {
+//                found = true;
+//                foundAccount = item;
+//                break;
+//            }
+//            i++;
+//        }
+//        if (found) {
+//            var cookie = create_login_cookie(item['UID'], item['token']);
+//            res.cookie("loginAuth", cookie,
+//                      { expires: new Date(Date.now() + 90000000000),
+//                        encode: String});
+//            var session = create_session_token(item['name'], item['id']);
+//            res.cookie("session", session,
+//                      { expires: 0,
+//                        encode: String});
+//            res.send({success: true});
+//        } else {
+//            res.status(403);
+//            res.send();
+//        }
+//
+//                
+//        
+//        
+//        
+//    });
+//    
+//    
+//};
+
 
 /* ---------------------------------------------
 
@@ -180,7 +226,8 @@ app.listen(8080, function() {
 //setInterval(function() {
 //    console.log(globalEmails);
 //    console.log(globalIDs);
-//}, 8000);
+//    console.log(globalSessions);
+//}, 12000);
 
 
 
@@ -189,6 +236,17 @@ app.listen(8080, function() {
                 Helper functions
 
 ============================================== */
+/* ---------------------------------------------
+
+Replace all targets in string (SO)
+
+---------------------------------------------- */
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
+
 /* ---------------------------------------------
 
 Pad an int with leading zero's for a given len
@@ -340,12 +398,12 @@ var create_auth_token = function (salt, passHash) {
     return token['hash'];
 }
 
-var create_session_token = function () {
+var create_session_token = function (name, id) {
     var token = misc_pad_zeros(Math.floor(Math.random() * 1000000000) + 1, 11);
     while (globalSessions[token] != undefined) {
         token = misc_pad_zeros(Math.floor(Math.random() * 1000000000) + 1, 11);
     }
-    globalSessions[token] = 1;
+    globalSessions[token] = [id, name];
     return token;
 }
 
@@ -357,17 +415,17 @@ Create UID      = hash(salt+email)
 Create PassHash = hash(salt+password)
 
 ---------------------------------------------- */
-var create_user_creds = function(email, password) {
+var create_user_creds = function(email, password, name) {
     var salt         = bcrypt.genSaltSync(10);
     var passwordData = create_hash(password, salt);
     var UIDData      = create_hash(email, salt);
     var token        = create_auth_token(salt, passwordData['hash']);
-    var session      = create_session_token();
     var ID           = misc_pad_zeros(Math.floor(Math.random() * 10000000) + 1, 9);
 
     while (globalIDs[ID] != undefined) {
         ID = misc_pad_zeros(Math.floor(Math.random() * 10000000) + 1, 9);
     }
+    var session      = create_session_token(name, ID);
     
     globalIDs[ID] = 1;
 
@@ -411,8 +469,8 @@ var create_new_user = function (req) {
     // Also return redirect
     if (!validate_email_exists(req.email.toLowerCase())) {
         globalEmails[req.email.toLowerCase()] = 1;
-        var userCredentials = create_user_creds(req.email, req.pass1);
         var name  = req.name[0].toUpperCase() + req.name.slice(1);
+        var userCredentials = create_user_creds(req.email, req.pass1, name);
         var dname = req.dname[0].toUpperCase() + req.dname.slice(1);
         db_new_user(userCredentials['UID'],
                     userCredentials['ID'],
@@ -517,18 +575,23 @@ app.get("/profile", function (req, res) {
 
 app.get("/dashboard", function (req, res) {
     if (req.cookies['session'] != undefined) {
-        if (globalSessions[req.cookies['session']] == 1) {
-            res.status(200);
-            res.sendFile(path.join(__dirname, "/public/dashboard.html"));
-            
-            
-            
-        } else {
-            
-        }
-    } else {
-        
-    }
+        if (globalSessions[req.cookies['session']] != undefined) {
+            fs.readFile(__dirname + '/public/dashboard.html', 'utf8', function (err, dashboard) {
+                if (err == null) {
+                    var profile = globalSessions[req.cookies['session']][0];
+                    var name    = globalSessions[req.cookies['session']][1];
+                    dashboard = dashboard.replace("%%name%%", name);
+                    res.status(200);
+                    res.send(dashboard);
+                    
+                } else {
+                    res.status(500);
+                    res.send("Something went wrong...");
+                    console.log(err);
+                }
+            });
+        } else { res.redirect(303, "/"); }
+    } else { res.redirect(303, "/"); }
 });
 
 
@@ -545,13 +608,24 @@ app.post("/API-login", function(req, res) {
 
     /* Validate structre, types & existence of incoming request */
     if (validate_req(req.body)) {
-        db_attempt_auth(req.body.email, req.body.pass1, res);
+        db_attempt_auth(req.body.email.toLowerCase(), req.body.pass1, res);
     } else {
         res.status(400);
         payload['info'] = "Bad request formatting >:(";
         res.send(payload);
     }
 });
+
+
+//app.post("/API-login-cookie", function (req, res) {
+//    // Check if persitent login cookie is present
+//    if (req.cookies['loginAuth'] != undefined) {
+//        db_loginAuth_cookie_check(req, res);
+//    } else {
+//        res.status(403);
+//        res.send();
+//    }
+//});
 
 
 /* ---------------------------------------------
@@ -661,3 +735,50 @@ app.delete("*", function (req, res) {
     res.status(403);
     res.send("Not authorized to DELETE");
 });
+
+
+/* =============================================
+
+              Websocket functions
+
+============================================== */
+/* ---------------------------------------------
+
+Handling the main chat websocket connection
+
+---------------------------------------------- */
+
+
+main_chat_wss.on("connection", function connection (socket) {
+    socket.on("message", function incoming(data) {
+        try {
+            var message = JSON.parse(data);
+            if (message.session != undefined && message.data != undefined){
+                var data    = message.data;
+                var session = message.session;
+                
+                if (data.replaceAll(" ", "") != "") {
+                    if (globalSessions[session] != undefined) {
+                        var ID   = globalSessions[session][0];
+                        var name = globalSessions[session][1];
+                        
+                        console.log(name + ": " + data); 
+                        
+                        var payload = JSON.stringify({
+                            senderName: name,
+                            senderID: ID,
+                            message: data
+                        });
+                        // send to all !!!!!!!
+                        socket.send(payload);
+                    }
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    });
+});
+
+
+
