@@ -86,7 +86,7 @@ var db_cookie_to_ID = function (UID, token, res) {
                     res.redirect(303, "/profile?id=" + rows[0]['id']);
             }
             else {
-                clear_loginAuth_cookie(res);
+                res = clear_loginAuth_cookie(req, res);
                 res.redirect(303, "/");
             }
         } else {
@@ -487,7 +487,10 @@ var create_new_user = function (req) {
 Clear a loginAuth cookie from the client
 
 ---------------------------------------------- */
-var clear_loginAuth_cookie = function (res) {
+var clear_loginAuth_cookie = function (req, res) {
+    var session = req.cookies['session'];
+    globalSessions[session] = "";
+    
     res.clearCookie("session", "");
     res.clearCookie("myID", "");
     res.clearCookie("theme", "");
@@ -526,15 +529,15 @@ app.get("/me", function (req, res) {
                 db_cookie_to_ID(UID, token, res);
             } else {
 //                res.cookie("login")
-                clear_loginAuth_cookie(res);
+                res = clear_loginAuth_cookie(req, res);
                 res.redirect(303, "/"); 
             }
         } else {
-            clear_loginAuth_cookie(res);
+            res = clear_loginAuth_cookie(req, res);
             res.redirect(303, "/"); 
         }
     } else {
-        clear_loginAuth_cookie(res);
+        res = clear_loginAuth_cookie(req, res);
         res.redirect(303, "/"); 
     }
 });
@@ -590,7 +593,7 @@ app.get("/dashboard", function (req, res) {
 
 
 app.get("/API-logout", function (req, res) {
-    res = clear_loginAuth_cookie(res);
+    res = clear_loginAuth_cookie(req, res);
     res.redirect(303, "/");
 });
 
