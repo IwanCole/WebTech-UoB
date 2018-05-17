@@ -170,7 +170,12 @@ var handler_login = function () {
         $(".home-signup").addClass("signup-active");
         $(".home-signup").css("overflow", "inherit");
         $(".home-welcome").addClass("home-welcome-hidden");
-        $("body").css("background-color", "rgba(216, 17, 89, 1)");
+        
+        if (Cookies.get("theme") == 2) {
+            $("body").css("background-color", "rgb(48, 87, 196)");
+        } else {
+            $("body").css("background-color", "rgb(216, 17, 89)");
+        }
         
 //        if (Cookies.get("loginAuth") != undefined) {
 //            post_login_cookie();

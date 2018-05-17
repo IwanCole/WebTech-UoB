@@ -488,7 +488,9 @@ Clear a loginAuth cookie from the client
 
 ---------------------------------------------- */
 var clear_loginAuth_cookie = function (res) {
-    res.cookie("loginAuth", "", {maxAge: Date.now()});
+    res.clearCookie("session", "");
+    res.clearCookie("myID", "");
+    res.clearCookie("theme", "");
     res.clearCookie("loginAuth", "");
     return res;
 }
@@ -583,6 +585,13 @@ app.get("/dashboard", function (req, res) {
             });
         } else { res.redirect(303, "/"); }
     } else { res.redirect(303, "/"); }
+});
+
+
+
+app.get("/API-logout", function (req, res) {
+    res = clear_loginAuth_cookie(res);
+    res.redirect(303, "/");
 });
 
 
