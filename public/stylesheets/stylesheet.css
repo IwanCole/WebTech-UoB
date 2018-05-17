@@ -32,6 +32,9 @@ input, input:focus {
     outline: none;
     border: none;
 }
+a {
+    text-decoration: none;
+}
 .javascript-warning {
     display: block;
     position: absolute;
@@ -168,8 +171,38 @@ input, input:focus {
     font-size: 20px;
     display: inline-block;
 }
-
-
+.nav-container {
+    width: 200px;
+    display: inline-block;
+    position: absolute;
+    top: 50px;
+}
+.nav-item {
+    text-align: left;
+    display: block;
+    padding: 6px;
+    box-sizing: border-box;
+    background-color: #fff;
+    border-radius: 25px;
+    width: 180px;
+    margin: 20px auto;
+}
+.nav-item-icon-cont {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    display: inline-block;
+    margin: 0;
+}
+.nav-item-text {
+    display: inline-block;
+    margin: 0;
+    width: 60%;
+    font-size: 16px;
+    text-align: right;
+    top: 10px;
+    position: relative;
+}
 
 .page-container {
     margin-left: auto;

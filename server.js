@@ -563,10 +563,18 @@ app.get("/dashboard", function (req, res) {
                 if (err == null) {
                     var profile = globalSessions[req.cookies['session']][0];
                     var name    = globalSessions[req.cookies['session']][1];
-                    dashboard = dashboard.replace("%%name%%", name);
-                    res.status(200);
-                    res.send(dashboard);
-                    
+                    fs.readFile(__dirname + '/templates/nav.html', 'utf8', function (err, nav) {
+                        if (err == null) {
+                            dashboard = dashboard.replace("%%nav%%", nav);
+                            dashboard = dashboard.replaceAll("%%name%%", name);
+                            res.status(200);
+                            res.send(dashboard);
+                        } else {
+                            res.status(500);
+                            res.send("Something went wrong...");
+                            console.log(err);
+                        }
+                    });
                 } else {
                     res.status(500);
                     res.send("Something went wrong...");
