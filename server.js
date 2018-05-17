@@ -581,7 +581,7 @@ app.get("/profile", function (req, res) {
 app.get("/dashboard", function (req, res) {
     if (req.cookies['session'] != undefined) {
         if (globalSessions[req.cookies['session']] != undefined) {
-            fs.readFile(__dirname + '/public/dashboard.html', 'utf8', function (err, dashboard) {
+            fs.readFile(__dirname + '/templates/dashboard.html', 'utf8', function (err, dashboard) {
                 if (err == null) {
                     var profile = globalSessions[req.cookies['session']][0];
                     var name    = globalSessions[req.cookies['session']][1];
