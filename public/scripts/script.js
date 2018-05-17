@@ -61,7 +61,7 @@ var post_signup = function () {
                 console.log(data);
                 if (data['success']) {
                     create_popup(data['info'], 0);
-                    window.location.replace("/me");
+                    window.location.replace("/dashboard");
                 } else {
                     create_cover(data['info']);
                     $(".home-signup-btn").removeClass("home-signup-btn-hide");
@@ -90,7 +90,7 @@ var post_login = function () {
            .done(function (data, staus) {
                 console.log(data);
                 if (data['success']) {
-                    window.location.replace("/me");
+                    window.location.replace("/dashboard");
                 } else {
                     create_cover(data['info']);
                     $(".home-login").addClass("home-login-active");

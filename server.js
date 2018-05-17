@@ -80,21 +80,12 @@ to THEIR user page, else return to home (/).
 
 ---------------------------------------------- */
 var db_cookie_to_ID = function (UID, token, res) {
-    db.all("SELECT uid as UID, id as id, token as token FROM users", function (err, rows) {
+    db.all("SELECT uid as UID, id as id, token as token FROM users WHERE uid=? AND token=?", [UID, token], function (err, rows) {
         if (err == null) {
-            // console.log(rows);
-            var i = 0;
-            var found = false
-            while (i < rows.length) {
-                var item = rows[i];
-                if (UID == item['UID'] && token == item['token']) {
-                    res.redirect(303, "/profile?id=" + item['id']);
-                    found = true;
-                    break;
-                }
-                i++;
+            if (rows.length > 0) {
+                    res.redirect(303, "/profile?id=" + rows[0]['id']);
             }
-            if (!found) {
+            else {
                 clear_loginAuth_cookie(res);
                 res.redirect(303, "/");
             }
@@ -107,25 +98,12 @@ var db_cookie_to_ID = function (UID, token, res) {
 
 
 var db_attempt_auth = function (email, password, res) {
-    db.all("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users", function (err, rows) {
+    db.all("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users WHERE email=?", [email], function (err, rows) {
         status = 0;
         payload = {success:false, cookie:"", info:""};
         if (err == null) {
-            var i = 0;
-            var found = false;
-            var foundAccount = {};
-
-            while (i < rows.length) {
-                var item = rows[i];
-                if (item['email'] == email) {
-                    found = true;
-                    foundAccount = item;
-                    break;
-                }
-                i++;
-            }
-
-            if (found) {
+            if (rows.length > 0) {
+                var item = rows[0];
                 var passHashAttempt = create_hash(password, item['salt']);
                 if (passHashAttempt['hash'] == item['passHash']) {
 
