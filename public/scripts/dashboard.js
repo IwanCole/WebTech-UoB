@@ -43,25 +43,21 @@ var insert_message = function (name, id, message) {
     var $messageIcon = $("<a>", {"class" : "chat-message-icon"});
     var $messageText = $("<p>", {"class" : "chat-message-text"});
     
+    
     $messageIcon.attr("href", "/profile?id=" + id);
     $messageIcon.text(name[0]);
     $messageName.text(name);
     $messageText.text(message);
     
-    $chatBubble.append($messageName).append($messageIcon).append($messageText);
+    if (id == Cookies.get("myID")) {
+        $chatBubble.attr("class", "chat-bubble chat-bubble-me");
+        $chatBubble.append($messageName).append($messageText).append($messageIcon);
+    } else {
+        $chatBubble.append($messageName).append($messageIcon).append($messageText);
+    }
     $(".chat-main-cont").append($chatBubble);
+    $(".chat-main-cont").scrollTop($(".chat-main-cont")[0].scrollHeight);
 }
-
-
-
-
-//var messageTemplate = `<div class="chat-main-cont">
-//                    <div class="chat-bubble">
-//                        <p class="chat-message-name">%%name%%</p>
-//                        <p class="chat-message-icon">%%icon%%</p>
-//                        <p class="chat-message-text">%%text%%</p>
-//                    </div>
-//                </div>`;
 
 
 socketMainChat.onopen = function () {

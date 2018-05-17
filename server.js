@@ -696,7 +696,7 @@ app.post("/API-signup", function(req, res) {
     res.cookie("loginAuth", payload['cookie'],
                { expires: new Date(Date.now() + 90000000000),
                  encode: String});
-    res.cookie("myID", payload['id'], 
+    res.cookie("myID", payload['myID'], 
                { expires: new Date(Date.now() + 90000000000),
                  encode: String});
     res.cookie("session", payload['session'],
