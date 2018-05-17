@@ -1,9 +1,5 @@
 @font-face {
     font-family: 'Gugi';
-/*    src: url('orbitron.eot');*/
-/*    src: url('orbitron.eot?#iefix') format('embedded-opentype'),*/
-/*    url('orbitron.woff') format('woff'),*/
-/*    url('orbitron.woff2') format('woff2'),*/
     src: url('Gugi-Regular.ttf') format('truetype');
 }
 
@@ -60,7 +56,7 @@ input, input:focus {
     -ms-user-select: none;
     user-select: none;
 }
-.status-popup, .status-cover {
+.status-popup, .status-cover, .colour-picker {
     background-color: #ffffff;
     display: block;
     opacity: 0; 
@@ -128,16 +124,41 @@ input, input:focus {
     z-index: 2;
 }
 
+.colour-picker {
+    text-align: center;
+    left: 50%;
+    padding: 15px;
+    width: 300px;
+    margin-left: -150px;
+    bottom: 50%;
+    height: 100px;
+    opacity: 1;
+    display: none;
+}
+.colour1, .colour2 {
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    display: inline-block;
+    margin: 0 20px;
+    background-color: red;
+    border-radius: 10px;
+}
+.colour1 {
+    background-color: #D81159;
+}
+.colour2 {
+    background-color: #3057c4;
+}
+
 
 .title {
-    color: #d9316f;
     font-size: 60px;
     font-weight: normal;
     margin: 20px 0 20px 0;
 }
 .sub-title {
     font-size: 24px;
-    color: #fa7aa9;
     display: inline-block;
 }
 .text {
@@ -145,7 +166,6 @@ input, input:focus {
 }
 .sub-text {
     font-size: 20px;
-    color: #fa7aa9;
     display: inline-block;
 }
 
@@ -176,7 +196,6 @@ input, input:focus {
     width: 40px;
     height: 40px;
     border-radius: 20px;
-/*    background-color: #F4BED1;*/
     margin: 0 10px -10px 0;
 }
 
@@ -206,7 +225,6 @@ input, input:focus {
 
 }
 .home-welcome > .divider {
-    background-color: #8F2D56;
     width: 0;
     height: 3px;
     display: block;
@@ -220,7 +238,6 @@ input, input:focus {
 .home-signup-btn, .home-login-btn {
     border: none;
     font-size: 25px;
-    background-color: #D81159;
     color: #ffffff;
     margin: 0 auto;
     border-radius: 35px;
@@ -241,7 +258,6 @@ input, input:focus {
 }
 .home-signup-btn:active, .home-login-btn:active {
     transform: translate(0, 3px);
-    background-color: #ad0b45;
 
 /*    opacity: 0;*/
     animation-delay: 2s !important;
@@ -255,20 +271,6 @@ input, input:focus {
 /*    margin: 0px;*/
 }
 
-/*
-.home-portal {
-    width: 500px;
-    top: 20vh;
-    opacity: 0;
-    z-index: 1;
-    position: absolute;
-    left: 50%;
-    margin-left: -250px;
-    border-radius: 20px;
-    background-color: #ffffff;
-    transition-duration: 200ms;
-}
-*/
 .home-signup, .home-login {
     max-height: 0px;
     opacity: 1;
@@ -313,12 +315,10 @@ input, input:focus {
     padding: 0 8px 0 8px;
 }
 .signup > .signup-glitch-fix {
-/*    background-color: rgba(255, 255, 255, 0); */
     opacity: 0 !important;
 }
 .signup > input, .login > input {
     color: #4F0721;
-    border-color: #d81159;
     border-style: solid;
     border-width: 1px;
     padding: 8px;
@@ -377,7 +377,6 @@ footer {
     box-sizing: border-box;
     position: fixed;
     height: 30px;
-    background-color: #8F2D56;
     display: block;
     text-align: center;
     width: 100%;
@@ -386,6 +385,13 @@ footer > .sub-text {
     color: #ffffff;
     font-size: 20px;
     margin: 0;
+}
+footer > .material-icons {
+    position: absolute;
+    left: 30px;
+    color: #ffffff;
+    font-size: 26px;
+    cursor: pointer;
 }
 
 

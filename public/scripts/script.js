@@ -1,6 +1,8 @@
 /*jslint browser: true*/
-/*global $, jQuery, alert*/
+/*global $, jQuery, alert, console, Cookies, create_popup, create_cover*/
 'use strict';
+
+var theme = "";
 
 var toggle_blackout = function (show) {
     if (show) {
@@ -13,9 +15,9 @@ var toggle_blackout = function (show) {
 };
 
 
-var create_popup = function(text, status) {
+var create_popup = function (text, status) {
     $(".status-popup-text").text(text);
-    if (status == 0) {
+    if (status === 0) {
         $(".status-popup-type").css("background-color", "#00d400");
     } else if (status == 1) {
         $(".status-popup-type").css("background-color", "#FBB13C");
@@ -23,14 +25,14 @@ var create_popup = function(text, status) {
         $(".status-popup-type").css("background-color", "#f50000");
     }
     $(".status-popup").addClass("status-popup-active");
-    $(".status-popup-active").delay(3000).queue(function(next){
+    $(".status-popup-active").delay(3000).queue(function (next) {
         $(this).removeClass("status-popup-active");
         next();
     });
 };
 
 
-var create_cover = function(text) {
+var create_cover = function (text) {
     $(".status-cover-text").html(text + "<br>Please click to dismiss.");
     toggle_blackout(true);
     $(".status-cover").addClass("status-cover-active");
@@ -139,10 +141,9 @@ var handler_signup = function () {
         if (filled) {
             if(key.keyCode == 13) {
                 post_signup();
-            } 
+            }
         }
     });
-
 
     $(".signup-input").on("input", function () {
         count = 0;
@@ -155,9 +156,12 @@ var handler_signup = function () {
         var alpha = count * 0.2;
         if (count == 5) { filled = true; }
         else { filled = false; }
-        $("body").css("background-color", "rgba(216, 17, 89, " + alpha.toString() + ")");
+        if (Cookies.get("theme") == 2) {
+            $("body").css("background-color", "rgba(48, 87, 196, " + alpha.toString() + ")");
+        } else {
+            $("body").css("background-color", "rgba(216, 17, 89, " + alpha.toString() + ")");
+        }
     });
-
 };
 
 
@@ -171,9 +175,9 @@ var handler_login = function () {
 //        if (Cookies.get("loginAuth") != undefined) {
 //            post_login_cookie();
 //        } else {
-            $(".home-login").addClass("home-login-active");
-            $(".home-signup-btn").addClass("home-signup-btn-hide");
-            $(".signup").addClass("signup-hide anim-signup-spin");
+        $(".home-login").addClass("home-login-active");
+        $(".home-signup-btn").addClass("home-signup-btn-hide");
+        $(".signup").addClass("signup-hide anim-signup-spin");
 //        }
     });
 
@@ -181,9 +185,66 @@ var handler_login = function () {
         post_login();
     });
     $(".login-input").keydown(function (key) {
-        if(key.keyCode == 13) {
+        if (key.keyCode == 13) {
             post_login();
-        } 
+        }
+    });
+};
+
+
+var apply_theme = function (theme) {
+    if (theme == 1) {
+        var old  = "theme2";
+        var next = "theme1";
+    } else {
+        var old  = "theme1";
+        var next = "theme2";
+    }
+    $(".home-signup-btn, .title, .sub-title, .sub-text, .divider, .home-login-btn, .signup, .login, footer, .chat-main-compose, .chat-main-input, .chat-main-send, .chat-message-name, .chat-message-icon, .chat-message-text, .chat-bubble-me").removeClass(old).addClass(next);
+    var url = window.location.href.toString();
+    if (url.indexOf("dashboard") != -1) {
+        $("body").removeClass(old).addClass(next);
+    }
+};
+
+
+var handler_theme_apply = function () {
+    var col = Cookies.get("theme");
+    if (col != undefined) {
+        console.log(col);
+        if (col == 1) {
+            theme = "theme1";
+            apply_theme(1);
+        } else if (col == 2) {
+            theme = "theme2 ";
+            apply_theme(2);
+        }
+    } else {
+        Cookies.set("theme", 1);
+        theme = "theme1";
+        apply_theme(1);
+    }
+};
+    
+
+
+
+var handler_theme_switch = function () {    
+    $(".material-icons").click(function () {
+        toggle_blackout(true);
+        $(".colour-picker").fadeIn(400);
+        $(".colour1").click(function () {
+            Cookies.set("theme", 1);
+            apply_theme(1);
+            toggle_blackout(false);
+            $(".colour-picker").fadeOut(400);
+        });
+        $(".colour2").click(function () {
+            Cookies.set("theme", 2);
+            apply_theme(2);
+            toggle_blackout(false);
+            $(".colour-picker").fadeOut(400);
+        });
     });
 };
 
@@ -192,6 +253,8 @@ var main = function () {
     $(".javascript-warning").remove();
     handler_signup();
     handler_login();
+    handler_theme_switch();
+    handler_theme_apply();
 };
 
 $("document").ready(main);

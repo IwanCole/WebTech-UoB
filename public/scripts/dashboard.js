@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global $, jQuery, alert*/
+/*global $, jQuery, alert, Cookies, create_popup, console, WebSocket*/
 'use strict';
 
 var serverIP = window.location.href.replace("http://", "").replace(":8080/dashboard", "");
@@ -17,7 +17,7 @@ var send_message = function () {
     var session = Cookies.get("session");
     var message = $(".chat-main-input")[0].value;
     var payload = JSON.stringify({
-        session: session, 
+        session: session,
         data: message
     });
     socketMainChat.send(payload);
@@ -34,14 +34,15 @@ var handler_send_message = function () {
             send_message();
         }
     });
-}
+};
 
 
 var insert_message = function (name, id, message) {
-    var $chatBubble = $("<div>", {"class" : "chat-bubble"});
-    var $messageName = $("<p>", {"class" : "chat-message-name"});
-    var $messageIcon = $("<a>", {"class" : "chat-message-icon"});
-    var $messageText = $("<p>", {"class" : "chat-message-text"});
+    var theme = "theme" + Cookies.get("theme");
+    var $chatBubble = $("<div>", {"class" : theme + " chat-bubble"});
+    var $messageName = $("<p>", {"class" : theme + " chat-message-name"});
+    var $messageIcon = $("<a>", {"class" : theme + " chat-message-icon"});
+    var $messageText = $("<p>", {"class" : theme + " chat-message-text"});
     
     
     $messageIcon.attr("href", "/profile?id=" + id);
@@ -50,28 +51,28 @@ var insert_message = function (name, id, message) {
     $messageText.text(message);
     
     if (id == Cookies.get("myID")) {
-        $chatBubble.attr("class", "chat-bubble chat-bubble-me");
+        $chatBubble.attr("class", theme + " chat-bubble chat-bubble-me");
         $chatBubble.append($messageName).append($messageText).append($messageIcon);
     } else {
         $chatBubble.append($messageName).append($messageIcon).append($messageText);
     }
     $(".chat-main-cont").append($chatBubble);
     $(".chat-main-cont").scrollTop($(".chat-main-cont")[0].scrollHeight);
-}
+};
 
 
 socketMainChat.onopen = function () {
     create_popup("Chat connected :)", 0);
 };
-socketMainChat.onmessage = function(payload) {
+socketMainChat.onmessage = function (payload) {
     console.log(payload.data);
     var data = JSON.parse(payload.data);
     insert_message(data.senderName, data.senderID, data.message);
 };
-socketMainChat.onerror = function(error) {
+socketMainChat.onerror = function (error) {
     create_popup("Chat error...", 1);
 };
-socketMainChat.onclose = function(code, reason) {
+socketMainChat.onclose = function (code, reason) {
     create_popup("Chat connection closed", 2);
 };
 
@@ -79,6 +80,19 @@ socketMainChat.onclose = function(code, reason) {
 var main = function () {
     handler_me();
     handler_send_message();
+    
+    var col = Cookies.get("theme");
+    if (col != undefined) {
+        if (col == 1) {
+            $("body").addClass("theme1");
+        } else if (col == 2) {
+            $("body").addClass("theme2");
+        }
+    } else {
+        Cookies.set("theme", 1);
+        $("body").addClass("theme1");
+    }
+    
 };
 
 $("document").ready(main);
