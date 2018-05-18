@@ -1,0 +1,44 @@
+.page-container {
+    height: 100vh;
+    width: 100%;
+}
+.current-user-name {
+    color: #fff;
+}
+
+.profile-container {
+    width: 500px;
+    height: 80vh;
+    display: block;
+    background-color: #ffffff;
+    border-radius: 15px;
+    position: absolute;
+    left: 50%;
+    margin-left: -200px;
+    border: 3px #626262;
+    border-bottom-style: solid;
+}
+.profile-pic {
+    width: 100%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+.profile-name {
+    margin: 0;
+    padding: 20px 30px;
+    text-align: left;
+}
+.profile-dname {
+    text-align: left;
+    display: block;
+    padding: 0 30px;
+}
+.profile-delete {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 170px;
+    height: 30px;
+    border-radius: 30px;
+    color: #ffffff;
+}

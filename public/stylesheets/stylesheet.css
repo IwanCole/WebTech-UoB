@@ -186,6 +186,18 @@ a {
     border-radius: 25px;
     width: 180px;
     margin: 20px auto;
+    transition-duration: 400ms;
+    border: 3px #626262;
+    border-bottom-style: solid;
+
+}
+.nav-item:hover {
+    background-color: #f0f0f0;
+    transform: translate(0, 2px);
+}
+.nav-tem:active {
+    background-color: #e2e2e2;
+    transform: translate(0, 4px);
 }
 .nav-item-icon-cont {
     width: 40px;
@@ -194,14 +206,31 @@ a {
     display: inline-block;
     margin: 0;
 }
+.nav-item-icon {
+    width: 35px;
+    height: 35px;
+    margin: 2px 0 0 2px;
+}
 .nav-item-text {
     display: inline-block;
     margin: 0;
-    width: 60%;
+    width: 50%;
     font-size: 16px;
     text-align: right;
-    top: 10px;
+    top: -10px;
     position: relative;
+}
+
+@media only screen and (max-width: 860px) {
+    .nav-container {
+        width: 60px;
+    }
+    .nav-item {
+        width: 52px;
+    }
+    .nav-item-text {
+        display: none;
+    }
 }
 
 .page-container {

@@ -4,7 +4,7 @@
 .theme1.sub-title, .theme1.sub-text {
     color: #fa7aa9;
 }
-.theme1.divider, footer.theme1 {
+.theme1.divider, footer.theme1, .theme1.profile-delete {
     background-color: #8F2D56;
 }
 .theme1.home-signup-btn, .theme1.home-login-btn, body.theme1, .theme1.nav-item-icon-cont {
@@ -57,7 +57,7 @@ footer.theme1 > .sub-text {
 .theme2.sub-title, .theme2.sub-text {
     color: #acc2ff;
 }
-.theme2.divider, footer.theme2 {
+.theme2.divider, footer.theme2, .theme2.profile-delete {
     background-color:   #283c76;
 }
 .theme2.home-signup-btn, .theme2.home-login-btn, body.theme2, .theme2.nav-item-icon-cont {

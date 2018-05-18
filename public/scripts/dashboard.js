@@ -3,7 +3,7 @@
 'use strict';
 
 var serverIP = window.location.href.replace("http://", "").replace(":8080/dashboard", "");
-var socketMainChat = new WebSocket('ws://' + serverIP + ':8081/');
+var socketMainChat;// = new WebSocket('ws://' + serverIP + ':8081/');
 
 
 var handler_me = function () {
@@ -61,23 +61,30 @@ var insert_message = function (name, id, message) {
 };
 
 
-socketMainChat.onopen = function () {
-    create_popup("Chat connected :)", 0);
+var handler_socket = function (){
+    socketMainChat = new WebSocket('ws://' + serverIP + ':8081/');
+    
+    socketMainChat.onopen = function () {
+        create_popup("Chat connected :)", 0);
+    };
+    socketMainChat.onmessage = function (payload) {
+        console.log(payload.data);
+        var data = JSON.parse(payload.data);
+        insert_message(data.senderName, data.senderID, data.message);
+    };
+    socketMainChat.onerror = function (error) {
+        create_popup("Chat error...", 1);
+    };
+    socketMainChat.onclose = function (code, reason) {
+        create_popup("Chat connection closed", 2);
+        socketMainChat.close();
+    };  
 };
-socketMainChat.onmessage = function (payload) {
-    console.log(payload.data);
-    var data = JSON.parse(payload.data);
-    insert_message(data.senderName, data.senderID, data.message);
-};
-socketMainChat.onerror = function (error) {
-    create_popup("Chat error...", 1);
-};
-socketMainChat.onclose = function (code, reason) {
-    create_popup("Chat connection closed", 2);
-};
+
 
 
 var main = function () {
+    handler_socket();
     handler_me();
     handler_send_message();
     
@@ -92,6 +99,11 @@ var main = function () {
         Cookies.set("theme", 1);
         $("body").addClass("theme1");
     }
+    
+    window.onbeforeunload = function() {
+//        socketMainChat.onclose = function () {}; // disable onclose handler first
+        socketMainChat.close()
+    };
     
 };
 

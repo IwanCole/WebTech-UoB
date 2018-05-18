@@ -205,9 +205,9 @@ var apply_theme = function (theme) {
         var old  = "theme1";
         var next = "theme2";
     }
-    $(".home-signup-btn, .title, .sub-title, .sub-text, .divider, .home-login-btn, .signup, .login, footer, .chat-main-compose, .chat-main-input, .chat-main-send, .chat-message-name, .chat-message-icon, .chat-message-text, .chat-bubble-me, .nav-item-icon-cont, .nav-item-text").removeClass(old).addClass(next);
+    $(".home-signup-btn, .title, .sub-title, .sub-text, .divider, .home-login-btn, .signup, .login, footer, .chat-main-compose, .chat-main-input, .chat-main-send, .chat-message-name, .chat-message-icon, .chat-message-text, .chat-bubble-me, .nav-item-icon-cont, .nav-item-text, .profile-name, .profile-dname, .profile-delete").removeClass(old).addClass(next);
     var url = window.location.href.toString();
-    if (url.indexOf("dashboard") != -1) {
+    if (url.indexOf("dashboard") != -1 || url.indexOf("profile") != -1) {
         $("body").removeClass(old).addClass(next);
     }
 };

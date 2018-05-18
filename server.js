@@ -33,7 +33,7 @@ var globalSessions  = {};
 
 ============================================== */
 var db_init = function() {
-    db.run("CREATE TABLE IF NOT EXISTS users (uid, id, email, name, dname, picloc, salt, passhash, token)");
+    db.run("CREATE TABLE IF NOT EXISTS users (uid, id, email, name, dname, salt, passhash, token)");
 };
 
 
@@ -42,8 +42,8 @@ var db_init = function() {
 Create a new entry for new user in USERS table
 
 ---------------------------------------------- */
-var db_new_user = function(UID, ID, email, name, dname, picloc, salt, passHash, token) {
-    db.run("INSERT INTO users (uid, id, email, name, dname, picloc, salt, passhash, token) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", [UID, ID, email, name, dname, picloc, salt, passHash, token], function (err) {
+var db_new_user = function(UID, ID, email, name, dname, salt, passHash, token) {
+    db.run("INSERT INTO users (uid, id, email, name, dname, salt, passhash, token) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [UID, ID, email, name, dname, salt, passHash, token], function (err) {
         if (err != null) {
             console.log(err);
         }
@@ -59,15 +59,19 @@ Get all registered emails from USERS table
 var db_get_emails_ids = function () {
     db.all("SELECT email as email, id as id FROM users", function (err, row) {
         if (err == null) {
-            var i = 0;
-            while (i < row.length) {
-                globalEmails[row[i]['email'].toLowerCase()] = 1;
-                globalIDs[row[i]['id']] = 1;
-                i++;
+            if (row != undefined) {
+                var i = 0;
+                while (i < row.length) {
+                    globalEmails[row[i]['email'].toLowerCase()] = 1;
+                    globalIDs[row[i]['id']] = 1;
+                    i++;
+                }
             }
+        } else {
+            console.log(err);
         }
     });
-}
+};
 
 
 /* ---------------------------------------------
@@ -79,11 +83,11 @@ is logged in, going to /me should redirect them
 to THEIR user page, else return to home (/).
 
 ---------------------------------------------- */
-var db_cookie_to_ID = function (UID, token, res) {
-    db.all("SELECT uid as UID, id as id, token as token FROM users WHERE uid=? AND token=?", [UID, token], function (err, rows) {
+var db_cookie_to_ID = function (UID, token, res, req) {
+    db.get("SELECT uid as UID, id as id, token as token FROM users WHERE uid=? AND token=?", [UID, token], function (err, rows) {
         if (err == null) {
-            if (rows.length > 0) {
-                    res.redirect(303, "/profile?id=" + rows[0]['id']);
+            if (rows != undefined) {
+                    res.redirect(303, "/profile?id=" + rows['id']);
             }
             else {
                 res = clear_loginAuth_cookie(req, res);
@@ -94,16 +98,16 @@ var db_cookie_to_ID = function (UID, token, res) {
             res.redirect(303, "/");
         }
     });
-}
+};
 
 
 var db_attempt_auth = function (email, password, res) {
-    db.all("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users WHERE email=?", [email], function (err, rows) {
+    db.get("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users WHERE email=?", [email], function (err, rows) {
         status = 0;
         payload = {success:false, cookie:"", info:""};
         if (err == null) {
-            if (rows.length > 0) {
-                var item = rows[0];
+            if (rows != undefined) {
+                var item = rows;
                 var passHashAttempt = create_hash(password, item['salt']);
                 if (passHashAttempt['hash'] == item['passHash']) {
 
@@ -147,50 +151,84 @@ var db_attempt_auth = function (email, password, res) {
             res.send(payload);
         }, 1000);
     });
-}
+};
 
-//var db_loginAuth_cookie_check = function (req, res) {
-////    console.log("OOO : " + cookie);
-//    db.all("SELECT uid as UID, id as id, name as name, token as token FROM users", function (err, rows) {
-//        var cookie_UID = req.cookies['loginAuth'].split("|")[0];
-//        var cookie_tok = req.cookies['loginAuth'].split("|")[1];
-//        
-//        var i = 0;
-//        var found = false;
-//        var foundAccount = {};
-//
-//        while (i < rows.length) {
-//            var item = rows[i];
-//            if (item['uid'] == cookie_UID && item['token'] == cookie_tok) {
-//                found = true;
-//                foundAccount = item;
-//                break;
-//            }
-//            i++;
-//        }
-//        if (found) {
-//            var cookie = create_login_cookie(item['UID'], item['token']);
-//            res.cookie("loginAuth", cookie,
-//                      { expires: new Date(Date.now() + 90000000000),
-//                        encode: String});
-//            var session = create_session_token(item['name'], item['id']);
-//            res.cookie("session", session,
-//                      { expires: 0,
-//                        encode: String});
-//            res.send({success: true});
-//        } else {
-//            res.status(403);
-//            res.send();
-//        }
-//
-//                
-//        
-//        
-//        
-//    });
-//    
-//    
-//};
+
+
+var db_get_profile = function (req, res) {
+    db.get("SELECT name as profileName, dname as dname FROM users WHERE id=?", [req.query.id], function (err, row) {
+        if (err == null) {
+            if (row != undefined) {
+                fs.readFile(__dirname + '/templates/profile.html', 'utf8', function (err1, profile) {
+                    if (err1 == null) {
+                        fs.readFile(__dirname + '/templates/nav.html', 'utf8', function (err2, nav) {
+                            if (err2 == null) {
+                                
+                                if (globalSessions[req.cookies['session']] != undefined) {
+                                    var name = globalSessions[req.cookies['session']][1];
+
+                                    profile = profile.replace("%%nav%%", nav);
+                                    profile = profile.replaceAll("%%name%%", name);
+                                    profile = profile.replaceAll("%%profileName%%", row['profileName']);
+                                    profile = profile.replace("%%dname%%", row['dname']);
+                                    var num = Math.floor(Math.random() * 4) + 1;
+                                    profile = profile.replace("%%picNum%%", num);
+                                    
+                                    if (globalSessions[req.cookies['session']][0] == req.query.id) {
+                                        profile = profile.replace("%%profileDelete%%", '<button class="profile-delete">Delete my account</button>');
+                                    } else {
+                                        profile = profile.replace("%%profileDelete%%", "");
+                                    }
+
+                                    res.send(profile);
+                                } else {
+                                    res.redirect(303, "/dashboard");
+                                }
+                            } else {
+                                res.status(500);
+                                res.send("Something went wrong...");
+                            }
+                        });
+                    } else {
+                        res.status(500);
+                        res.send("Something went wrong...");
+                    }
+                });  
+            } else {
+                res.redirect(303, "/dashboard");
+            }
+        } else {
+            console.log(err);
+            res.redirect(303, "/dashboard");
+        }   
+    });
+};
+
+
+var db_delete_profile = function (req, res) {
+    var cookie = req.cookies['loginAuth'];
+    if (cookie.length == 121) {
+        if (cookie.indexOf("|") == 60) {
+            var UID = cookie.split("|")[0];
+            var token = cookie.split("|")[1];
+            
+            db.run("DELETE FROM users WHERE uid=? AND token=?", [UID, token], function(err) {
+                if (err) {
+                    console.log(err);
+                    res.redirect(303, "/dashboard");
+                } else {
+                    console.log("Deleted user");
+                    res = clear_loginAuth_cookie(req, res);
+                    res.redirect(303, "/");
+                }
+            });
+        } else {
+            res.redirect(303, "/dashboard");
+        }
+    } else {
+        res.redirect(303, "/dashboard");
+    }
+};
 
 
 /* ---------------------------------------------
@@ -458,7 +496,6 @@ var create_new_user = function (req) {
                     req.email.toLowerCase(),
                     name,
                     dname,
-                    "EOF",
                     userCredentials['salt'],
                     userCredentials['passHash'],
                     userCredentials['token']);
@@ -526,7 +563,7 @@ app.get("/me", function (req, res) {
             if (cookie.indexOf("|") == 60) {
                 var UID = cookie.split("|")[0];
                 var token = cookie.split("|")[1];
-                db_cookie_to_ID(UID, token, res);
+                db_cookie_to_ID(UID, token, res, req);
             } else {
 //                res.cookie("login")
                 res = clear_loginAuth_cookie(req, res);
@@ -553,8 +590,11 @@ app.get("/profile", function (req, res) {
     if (req.query.id != undefined) {
         if (req.query.id != "") {
             if (globalIDs[req.query.id] != undefined) {
+                
+                db_get_profile(req, res);
+                
                 console.log("This is a valid request");
-                res.send("Landed!");                
+//                res.send("Landed!");                
             } else { res.redirect(303, "/404"); }
         } else { res.redirect(303, "/404"); }
     } else { res.redirect(303, "/404"); }
@@ -616,6 +656,19 @@ app.post("/API-login", function(req, res) {
         res.status(400);
         payload['info'] = "Bad request formatting >:(";
         res.send(payload);
+    }
+});
+
+
+app.post("/API-delete", function (req, res) {
+    if (req.cookies['session'] != undefined) {
+        if (globalSessions[req.cookies['session']] != undefined) {
+            db_delete_profile(req, res);
+        } else {
+            res.redirect(303, "/");
+        }
+    } else {
+        res.redirect(303, "/");
     }
 });
 
@@ -756,6 +809,15 @@ Handling the main chat websocket connection
 
 
 main_chat_wss.on("connection", function connection (socket) {
+    
+    var welcome = JSON.stringify({
+                            senderName: "Server",
+                            senderID: "",
+                            message: "Welcome to the chat new user! You can click the colour palette in the footer to change the theme."
+                        });
+    socket.send(welcome);
+                                            
+    
     socket.on("message", function incoming(data) {
         try {
             var message = JSON.parse(data);
@@ -788,6 +850,9 @@ main_chat_wss.on("connection", function connection (socket) {
         } catch (e) {
             console.log(e);
         }
+    });
+    socket.on("close", function close() {
+        console.log("Someone disconnected");
     });
 });
 
