@@ -101,6 +101,14 @@ var db_cookie_to_ID = function (UID, token, res, req) {
 };
 
 
+/* ---------------------------------------------
+
+Authenticate a user when they log in.
+Match the email address with an entry from the DB
+and see if the hashed passwords match. Return an
+error if authentication failed.
+
+---------------------------------------------- */
 var db_attempt_auth = function (email, password, res) {
     db.get("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users WHERE email=?", [email], function (err, rows) {
         status = 0;
@@ -129,7 +137,7 @@ var db_attempt_auth = function (email, password, res) {
                                 
 
                 } else {
-                    // password incorrect??
+                    // password incorrect
                     payload["info"] = "Email address or password is incorrect. Please try again.";
                     status = 200;
                 }
@@ -154,7 +162,12 @@ var db_attempt_auth = function (email, password, res) {
 };
 
 
+/* ---------------------------------------------
 
+Pull specific profile info from the DB and fill
+the profile template. Return error otherwise.
+
+---------------------------------------------- */
 var db_get_profile = function (req, res) {
     db.get("SELECT name as profileName, dname as dname FROM users WHERE id=?", [req.query.id], function (err, row) {
         if (err == null) {
@@ -205,6 +218,11 @@ var db_get_profile = function (req, res) {
 };
 
 
+/* ---------------------------------------------
+
+Delete a user from the DB
+
+---------------------------------------------- */
 var db_delete_profile = function (req, res) {
     var cookie = req.cookies['loginAuth'];
     if (cookie.length == 121) {
@@ -321,24 +339,7 @@ var validate_req = function(req) {
                     i++;
                 }
             } else { return false; }
-        }
-
-        // Get profile requests
-        else if (req.type == "t_profile") {
-
-        }
-
-        // Update profile request
-        else if (req.type == "t_update") {
-
-        }
-
-        // Delete account request
-        else if (req.type == "t_delete") {
-
-        }
-
-        else { return false; }
+        } else { return false; }
     } else { return false; }
     return true;
 };
@@ -352,6 +353,8 @@ Check Email is *@*.*, one word, < 254
 Check Passwords > 8 alphanum, < 20
 Check Passwords match
 Check DogName alpha, one word, < 50
+
+This returns 1 error in input at a time.
 
 Return False if any conditions fail
 Return True *only* if all conditions are met
@@ -426,6 +429,7 @@ var create_session_token = function (name, id) {
     return token;
 }
 
+
 /* ---------------------------------------------
 
 Calculate values related to creating a new user
@@ -485,7 +489,6 @@ Create a new user account from start to finish:
 
 ---------------------------------------------- */
 var create_new_user = function (req) {
-    // Also return redirect
     if (!validate_email_exists(req.email.toLowerCase())) {
         globalEmails[req.email.toLowerCase()] = 1;
         var name  = req.name[0].toUpperCase() + req.name.slice(1);
@@ -583,7 +586,6 @@ app.get("/me", function (req, res) {
 /* ---------------------------------------------
 
 Load a user profile page, with the query ?id
-Not currently implemented properly
 
 ---------------------------------------------- */
 app.get("/profile", function (req, res) {
@@ -601,6 +603,13 @@ app.get("/profile", function (req, res) {
 });
 
 
+/* ---------------------------------------------
+
+Fill the dashboard template (chat screen) and
+return to client. Only accessible if the user is
+logged in (active session).
+
+---------------------------------------------- */
 app.get("/dashboard", function (req, res) {
     if (req.cookies['session'] != undefined) {
         if (globalSessions[req.cookies['session']] != undefined) {
@@ -631,7 +640,56 @@ app.get("/dashboard", function (req, res) {
 });
 
 
+/* ---------------------------------------------
 
+Fill the about template and return to client. 
+If the user is logged in, display the nav bar.
+If not, only display "about" section.
+
+---------------------------------------------- */
+app.get("/about", function (req, res) {
+    fs.readFile(__dirname + '/templates/about.html', 'utf8', function (err, about) {
+        if (err == null) {
+            var served = true;
+            if (req.cookies['session'] != undefined) {
+                if (globalSessions[req.cookies['session']] != undefined) {
+                    fs.readFile(__dirname + '/templates/nav.html', 'utf8', function (err, nav) {
+                        if (err == null) {
+                            var profile = globalSessions[req.cookies['session']][0];
+                            var name    = globalSessions[req.cookies['session']][1];
+                            
+                            about = about.replace("%%nav%%", nav).replaceAll("%%name%%", name);
+                            
+                            res.status(200);
+                            res.send(about);
+                        } else {
+                            res.status(500);
+                            res.send("Something went wrong...");
+                            console.log(err);
+                        }
+                    });
+                } else { served = false }
+            } else { served = false }
+            
+            if (!served) {
+                about = about.replaceAll("%%name%%", "").replace("%%nav%%", "");
+                res.send(about);
+            }
+        } else {
+            res.status(500);
+            res.send("Something went wrong...");
+            console.log(err);
+        }
+    });
+});
+
+
+/* ---------------------------------------------
+
+Log out the user and clear the session token
+from the server, clear user cookies.
+
+---------------------------------------------- */
 app.get("/API-logout", function (req, res) {
     res = clear_loginAuth_cookie(req, res);
     res.redirect(303, "/");
@@ -660,6 +718,11 @@ app.post("/API-login", function(req, res) {
 });
 
 
+/* ---------------------------------------------
+
+Handle requests to delete the user's account 
+
+---------------------------------------------- */
 app.post("/API-delete", function (req, res) {
     if (req.cookies['session'] != undefined) {
         if (globalSessions[req.cookies['session']] != undefined) {
@@ -671,17 +734,6 @@ app.post("/API-delete", function (req, res) {
         res.redirect(303, "/");
     }
 });
-
-
-//app.post("/API-login-cookie", function (req, res) {
-//    // Check if persitent login cookie is present
-//    if (req.cookies['loginAuth'] != undefined) {
-//        db_loginAuth_cookie_check(req, res);
-//    } else {
-//        res.status(403);
-//        res.send();
-//    }
-//});
 
 
 /* ---------------------------------------------
@@ -806,8 +858,6 @@ app.delete("*", function (req, res) {
 Handling the main chat websocket connection
 
 ---------------------------------------------- */
-
-
 main_chat_wss.on("connection", function connection (socket) {
     
     var welcome = JSON.stringify({
@@ -836,14 +886,10 @@ main_chat_wss.on("connection", function connection (socket) {
                             senderName: name,
                             senderID: ID,
                             message: data
-                        });
-                        // send to all !!!!!!!
-                        
+                        });                    
                         main_chat_wss.clients.forEach(function each(client) {
                             client.send(payload);
                         });
-                        
-//                        socket.send(payload);
                     }
                 }
             }
@@ -855,6 +901,3 @@ main_chat_wss.on("connection", function connection (socket) {
         console.log("Someone disconnected");
     });
 });
-
-
-
