@@ -1,3 +1,7 @@
+/*jslint browser: true*/
+/*global $, jQuery, alert, console, Cookies, create_popup, confirm*/
+'use strict';
+
 var handler_me = function () {
     $(".current-user-name").click(function () {
         window.location.replace("/me");
@@ -8,17 +12,17 @@ var handler_me = function () {
 var post_delete = function () {
     $.post("/API-delete", "")
            .done(function (data, staus) {
-                window.location.replace("/");
+            window.location.replace("/");
             })
            .fail(function (xhr, error, statusCode) {
-                window.location.replace("/dashboard");
+            window.location.replace("/dashboard");
             });
 };
 
 
 var handler_delete = function () {
     $(".profile-delete").click(function () {
-        if(confirm("Are you sure you'd like to delete your account?")) {
+        if (confirm("Are you sure you'd like to delete your account?")) {
             post_delete();
         } else {
             create_popup("Cancelled deletion", 1);
@@ -32,10 +36,10 @@ var main = function () {
     handler_delete();
     
     var col = Cookies.get("theme");
-    if (col != undefined) {
-        if (col == 1) {
+    if (col !== undefined) {
+        if (col === "1") {
             $("body").addClass("theme1");
-        } else if (col == 2) {
+        } else if (col === "2") {
             $("body").addClass("theme2");
         }
     } else {

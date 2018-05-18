@@ -1,19 +1,19 @@
 .theme1.title {
     color: #d9316f;
 }
-.theme1.sub-title, .theme1.sub-text {
+.theme1.sub-title, .theme1.sub-text, .theme1.about-test-text {
     color: #fa7aa9;
 }
 .theme1.divider, footer.theme1, .theme1.profile-delete {
     background-color: #8F2D56;
 }
-.theme1.home-signup-btn, .theme1.home-login-btn, body.theme1, .theme1.nav-item-icon-cont {
+.theme1.home-signup-btn, .theme1.home-login-btn, body.theme1, .theme1.nav-item-icon-cont, html.theme1 {
     background-color: #D81159;
 }
 .theme1.home-signup-btn:active, .theme1.home-login-btn:active {
     background-color: #ad0b45;
 }
-.theme1.signup > input, .theme1.login > input {
+.theme1.signup > input, .theme1.login > input, .theme1.about-test-container > input {
     border-color: #d81159;
     color: #4F0721;
 }
@@ -29,11 +29,6 @@ footer.theme1 > .sub-text {
 .theme1.chat-main-input::placeholder {
     color: #ffc5da;
 }
-/*
-.theme1.chat-main-send {
-    color: #840030;
-}
-*/
 .theme1.chat-message-name {
     color: #d81159;
 }
@@ -54,19 +49,19 @@ footer.theme1 > .sub-text {
 .theme2.title {
     color: #3057c4;
 }
-.theme2.sub-title, .theme2.sub-text {
+.theme2.sub-title, .theme2.sub-text, .theme2.about-test-text {
     color: #acc2ff;
 }
 .theme2.divider, footer.theme2, .theme2.profile-delete {
     background-color:   #283c76;
 }
-.theme2.home-signup-btn, .theme2.home-login-btn, body.theme2, .theme2.nav-item-icon-cont {
+.theme2.home-signup-btn, .theme2.home-login-btn, body.theme2, .theme2.nav-item-icon-cont, html.theme2 {
     background-color: #3057c4;
 }
 .theme2.home-signup-btn:active, .theme2.home-login-btn:active {
     background-color: #143ba8;
 }
-.theme2.signup > input, .theme2.login > input {
+.theme2.signup > input, .theme2.login > input, .theme2.about-test-container > input {
     border-color: #3057c4;
     color: #0e2e89;
 }
