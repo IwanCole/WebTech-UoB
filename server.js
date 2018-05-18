@@ -895,16 +895,31 @@ main_chat_wss.on("connection", function connection (socket) {
                         var ID   = globalSessions[session][0];
                         var name = globalSessions[session][1];
                         
-                        console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data); 
-                        
-                        var payload = JSON.stringify({
-                            senderName: name,
-                            senderID: ID,
-                            message: data
-                        });                    
-                        main_chat_wss.clients.forEach(function each(client) {
-                            client.send(payload);
-                        });
+                        if (data === "@server joke") {
+                            var payload = JSON.stringify({
+                                senderName: name,
+                                senderID: ID,
+                                message: data
+                            });
+                            socket.send(payload);
+                            var joke = JSON.stringify({
+                                senderName: "Server",
+                                senderID: "",
+                                message: "There are 10 types of people in the world. Those who understand binary, and those who do not."
+                            });
+                            socket.send(joke);
+                        } else {
+                            console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data); 
+
+                            var payload = JSON.stringify({
+                                senderName: name,
+                                senderID: ID,
+                                message: data
+                            });                    
+                            main_chat_wss.clients.forEach(function each(client) {
+                                client.send(payload);
+                            });
+                        }
                     }
                 }
             }
