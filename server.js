@@ -702,6 +702,15 @@ app.get("/API-logout", function (req, res) {
 
 /* ---------------------------------------------
 
+Redirect to the images page
+
+---------------------------------------------- */
+app.get("/images", function (req, res) {
+    res.redirect(303, "/images.html");
+});
+
+/* ---------------------------------------------
+
 Handle requests to the Login API
 Runs all the user authenticating logic
 
