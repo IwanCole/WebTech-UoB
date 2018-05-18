@@ -33,7 +33,13 @@ var globalSessions  = {};
 
 ============================================== */
 var db_init = function() {
-    db.run("CREATE TABLE IF NOT EXISTS users (uid, id, email, name, dname, salt, passhash, token)");
+    db.run("CREATE TABLE IF NOT EXISTS users (uid, id, email, name, dname, salt, passhash, token)", function (err) {
+        if (err !== null) {
+            console.log("[SERVR] ERROR: \n" + err);
+        } else {
+            console.log("[SERVR] DATABASE: Created database");
+        }
+    });
 };
 
 
@@ -44,8 +50,10 @@ Create a new entry for new user in USERS table
 ---------------------------------------------- */
 var db_new_user = function(UID, ID, email, name, dname, salt, passHash, token) {
     db.run("INSERT INTO users (uid, id, email, name, dname, salt, passhash, token) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", [UID, ID, email, name, dname, salt, passHash, token], function (err) {
-        if (err != null) {
-            console.log(err);
+        if (err !== null) {
+            console.log("[SERVR] ERROR: \n" + err);
+        } else {
+            console.log("[SERVR] DATABASE: Created new user");
         }
     });
 };
@@ -58,7 +66,7 @@ Get all registered emails from USERS table
 ---------------------------------------------- */
 var db_get_emails_ids = function () {
     db.all("SELECT email as email, id as id FROM users", function (err, row) {
-        if (err == null) {
+        if (err === null) {
             if (row != undefined) {
                 var i = 0;
                 while (i < row.length) {
@@ -66,9 +74,10 @@ var db_get_emails_ids = function () {
                     globalIDs[row[i]['id']] = 1;
                     i++;
                 }
+                console.log("[SERVR] DATABASE: Startup read successful");
             }
         } else {
-            console.log(err);
+            console.log("[SERVR] ERROR: \n " + err);
         }
     });
 };
@@ -85,16 +94,17 @@ to THEIR user page, else return to home (/).
 ---------------------------------------------- */
 var db_cookie_to_ID = function (UID, token, res, req) {
     db.get("SELECT uid as UID, id as id, token as token FROM users WHERE uid=? AND token=?", [UID, token], function (err, rows) {
-        if (err == null) {
+        if (err === null) {
             if (rows != undefined) {
-                    res.redirect(303, "/profile?id=" + rows['id']);
+                console.log("[SERVR] DATABASE: Cookie matched to DB entry successfully");
+                res.redirect(303, "/profile?id=" + rows['id']);
             }
             else {
                 res = clear_loginAuth_cookie(req, res);
                 res.redirect(303, "/");
             }
         } else {
-            console.log(err);
+            console.log("[SERVR] ERROR: \n " + err);
             res.redirect(303, "/");
         }
     });
@@ -113,17 +123,18 @@ var db_attempt_auth = function (email, password, res) {
     db.get("SELECT uid as UID, id as id, email as email, name as name, salt as salt, passHash as passHash, token as token FROM users WHERE email=?", [email], function (err, rows) {
         status = 0;
         payload = {success:false, cookie:"", info:""};
-        if (err == null) {
+        if (err === null) {
             if (rows != undefined) {
                 var item = rows;
                 var passHashAttempt = create_hash(password, item['salt']);
                 if (passHashAttempt['hash'] == item['passHash']) {
-
                     var cookie = create_login_cookie(item['UID'], item['token']);
                     status = 200;
                     payload["success"] = true;
                     payload["cookie"]  = cookie;
                     payload["info"]    = "Login successful, redirecting...";
+                    console.log("[SERVR] AUTH: User auth successful for " + email);
+                    
                     res.cookie("loginAuth", cookie,
                               { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
@@ -138,16 +149,18 @@ var db_attempt_auth = function (email, password, res) {
 
                 } else {
                     // password incorrect
+                    console.log("[SERVR] AUTH: User auth failed for " + email);
                     payload["info"] = "Email address or password is incorrect. Please try again.";
                     status = 200;
                 }
             } else {
                 // Email provided not registered
+                console.log("[SERVR] AUTH: User auth failed for " + email);
                 payload["info"] = "Email address or password is incorrect. Please try again.";
                 status = 200;
             }
         } else {
-            console.log(err);
+            console.log("[SERVR] ERROR: \n " + err);
             payload["info"] = "Something went wrong. Please try again.";
             status = 400;
         }
@@ -170,16 +183,18 @@ the profile template. Return error otherwise.
 ---------------------------------------------- */
 var db_get_profile = function (req, res) {
     db.get("SELECT name as profileName, dname as dname FROM users WHERE id=?", [req.query.id], function (err, row) {
-        if (err == null) {
+        if (err === null) {
             if (row != undefined) {
                 fs.readFile(__dirname + '/templates/profile.html', 'utf8', function (err1, profile) {
-                    if (err1 == null) {
+                    if (err1 === null) {
                         fs.readFile(__dirname + '/templates/nav.html', 'utf8', function (err2, nav) {
-                            if (err2 == null) {
+                            if (err2 === null) {
                                 
                                 if (globalSessions[req.cookies['session']] != undefined) {
                                     var name = globalSessions[req.cookies['session']][1];
 
+                                    console.log("[SERVR] DATABASE: Successfully pulled entry for " + name);
+                                    
                                     profile = profile.replace("%%nav%%", nav);
                                     profile = profile.replaceAll("%%name%%", name);
                                     profile = profile.replaceAll("%%profileName%%", row['profileName']);
@@ -211,7 +226,7 @@ var db_get_profile = function (req, res) {
                 res.redirect(303, "/dashboard");
             }
         } else {
-            console.log(err);
+            console.log("[SERVR] ERROR: \n " + err);
             res.redirect(303, "/dashboard");
         }   
     });
@@ -232,10 +247,10 @@ var db_delete_profile = function (req, res) {
             
             db.run("DELETE FROM users WHERE uid=? AND token=?", [UID, token], function(err) {
                 if (err) {
-                    console.log(err);
+                    console.log("[SERVR] ERROR: \n " + err);
                     res.redirect(303, "/dashboard");
                 } else {
-                    console.log("Deleted user");
+                    console.log("[SERVR] DATABASE: Deleted user");
                     res = clear_loginAuth_cookie(req, res);
                     res.redirect(303, "/");
                 }
@@ -255,16 +270,10 @@ Start the web server, init the database
 
 ---------------------------------------------- */
 app.listen(8080, function() {
-    console.log('Express HTTP server on listening on port 8080');
+    console.log('[SERVR] STATUS: Express HTTP server on listening on port 8080');
     db.serialize(db_init);
     db_get_emails_ids();
 });
-
-//setInterval(function() {
-//    console.log(globalEmails);
-//    console.log(globalIDs);
-//    console.log(globalSessions);
-//}, 12000);
 
 
 
@@ -452,11 +461,9 @@ var create_user_creds = function(email, password, name) {
     
     globalIDs[ID] = 1;
 
-    console.log("Salt: " + salt);
-    console.log("PassHash: " + passwordData['hash']);
-    console.log("UID: " + UIDData['hash']);
-    console.log("Token: " + token);
-    console.log("ID: " + ID);
+    console.log("[SERVR] NEW USER PassHash: " + passwordData['hash']);
+    console.log("[SERVR] NEW USER UID: " + UIDData['hash']);
+    console.log("[SERVR] NEW USER ID: " + ID);
     return {
         salt: salt,
         passHash: passwordData['hash'],
@@ -592,11 +599,7 @@ app.get("/profile", function (req, res) {
     if (req.query.id != undefined) {
         if (req.query.id != "") {
             if (globalIDs[req.query.id] != undefined) {
-                
                 db_get_profile(req, res);
-                
-                console.log("This is a valid request");
-//                res.send("Landed!");                
             } else { res.redirect(303, "/404"); }
         } else { res.redirect(303, "/404"); }
     } else { res.redirect(303, "/404"); }
@@ -626,13 +629,13 @@ app.get("/dashboard", function (req, res) {
                         } else {
                             res.status(500);
                             res.send("Something went wrong...");
-                            console.log(err);
+                            console.log("[SERVR] ERROR: \n " + err);
                         }
                     });
                 } else {
                     res.status(500);
                     res.send("Something went wrong...");
-                    console.log(err);
+                    console.log("[SERVR] ERROR: \n " + err);
                 }
             });
         } else { res.redirect(303, "/"); }
@@ -665,7 +668,7 @@ app.get("/about", function (req, res) {
                         } else {
                             res.status(500);
                             res.send("Something went wrong...");
-                            console.log(err);
+                            console.log("[SERVR] ERROR: \n " + err);
                         }
                     });
                 } else { served = false }
@@ -678,7 +681,7 @@ app.get("/about", function (req, res) {
         } else {
             res.status(500);
             res.send("Something went wrong...");
-            console.log(err);
+            console.log("[SERVR] ERROR: \n " + err);
         }
     });
 });
@@ -691,6 +694,7 @@ from the server, clear user cookies.
 
 ---------------------------------------------- */
 app.get("/API-logout", function (req, res) {
+    console.log("[SERVR] LOGOUT: User logged out");
     res = clear_loginAuth_cookie(req, res);
     res.redirect(303, "/");
 });
@@ -703,12 +707,12 @@ Runs all the user authenticating logic
 
 ---------------------------------------------- */
 app.post("/API-login", function(req, res) {
-    console.log(req.body);
     var status = 0;
     var payload = {success:false, cookie:"", info:""};
 
     /* Validate structre, types & existence of incoming request */
     if (validate_req(req.body)) {
+        console.log("[SERVR] LOGIN: " + req.body.email);
         db_attempt_auth(req.body.email.toLowerCase(), req.body.pass1, res);
     } else {
         res.status(400);
@@ -745,7 +749,6 @@ before processing, send appropriate response.
 
 ---------------------------------------------- */
 app.post("/API-signup", function(req, res) {
-    console.log(req.body);
     var status = 0;
     var payload = {success:false, cookie:"", session: "", myID: "", info:""};
 
@@ -755,6 +758,7 @@ app.post("/API-signup", function(req, res) {
         var formatStatus = validate_format(req.body);
 
         if (formatStatus == 0) {
+            console.log("[SERVR] SIGNUP: " + req.body.email);
             payload = create_new_user(req.body);
 
         } else {
@@ -860,6 +864,8 @@ Handling the main chat websocket connection
 ---------------------------------------------- */
 main_chat_wss.on("connection", function connection (socket) {
     
+    console.log("[SERVR] CHAT: Someone connected");
+    
     var welcome = JSON.stringify({
                             senderName: "Server",
                             senderID: "",
@@ -880,7 +886,7 @@ main_chat_wss.on("connection", function connection (socket) {
                         var ID   = globalSessions[session][0];
                         var name = globalSessions[session][1];
                         
-                        console.log(name + ": " + data); 
+                        console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data); 
                         
                         var payload = JSON.stringify({
                             senderName: name,
@@ -894,10 +900,10 @@ main_chat_wss.on("connection", function connection (socket) {
                 }
             }
         } catch (e) {
-            console.log(e);
+            console.log("[SERVR] ERROR: " + e);
         }
     });
     socket.on("close", function close() {
-        console.log("Someone disconnected");
+        console.log("[SERVR] CHAT: Someone disconnected");
     });
 });

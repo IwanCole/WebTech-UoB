@@ -4,6 +4,14 @@
 
 var theme = "";
 
+
+/* ---------------------------------------------
+
+Toggle a semi transparent page blackout to enable
+important messages to stand out, preventing access
+to the page until the message has been dismissed
+
+---------------------------------------------- */
 var toggle_blackout = function (show) {
     if (show) {
         $(".full-page-cover").addClass("full-page-cover-active");
@@ -15,6 +23,13 @@ var toggle_blackout = function (show) {
 };
 
 
+/* ---------------------------------------------
+
+Create a custom notification to appear. Text is the 
+content, and status 0 = Ok, 1 = Warning, 2 = Error.
+Popup notification disappears after 3 seconds.
+
+---------------------------------------------- */
 var create_popup = function (text, status) {
     $(".status-popup-text").text(text);
     if (status === 0) {
@@ -32,6 +47,12 @@ var create_popup = function (text, status) {
 };
 
 
+/* ---------------------------------------------
+
+Create an "important" notification by creating a 
+large message window, covering the rest of the page.
+
+---------------------------------------------- */
 var create_cover = function (text) {
     $(".status-cover-text").html(text + "<br>Please click to dismiss.");
     toggle_blackout(true);
@@ -43,6 +64,12 @@ var create_cover = function (text) {
 };
 
 
+/* ---------------------------------------------
+
+POST function for user signups. Uses callbacks to
+handle success/failure of the user signup.
+
+---------------------------------------------- */
 var post_signup = function () {
     var inputs = $(".signup-input"),
         payload = {
@@ -77,6 +104,12 @@ var post_signup = function () {
 };
 
 
+/* ---------------------------------------------
+
+POST function for user logins. Uses callbacks to
+handle success/failure of the user signup.
+
+---------------------------------------------- */
 var post_login = function () {
     var inputs = $(".login-input"),
         payload = {
@@ -104,6 +137,14 @@ var post_login = function () {
 };
 
 
+/* ---------------------------------------------
+
+Creates appropriate event handlers for the user
+signup process. Does some minimal data validation
+by counting filled input fields. Concrete validation
+is done server-side to fully trust the data.
+
+---------------------------------------------- */
 var handler_signup = function () {
     var count = 0,
         filled = false;
@@ -153,6 +194,12 @@ var handler_signup = function () {
 };
 
 
+/* ---------------------------------------------
+
+Creates appropriate event handlers for the user
+Login process.
+
+---------------------------------------------- */
 var handler_login = function () {
     $(".current-user-name").click(function () {
         $(".home-signup").addClass("signup-active");
@@ -182,6 +229,11 @@ var handler_login = function () {
 };
 
 
+/* ---------------------------------------------
+
+Apply the currently selected colour theme.
+
+---------------------------------------------- */
 var apply_theme = function (theme) {
     var old, next;
     if (theme === 1) {
@@ -201,6 +253,11 @@ var apply_theme = function (theme) {
 };
 
 
+/* ---------------------------------------------
+
+Creates event handlers for applying colour theme.
+
+---------------------------------------------- */
 var handler_theme_apply = function () {
     var col = Cookies.get("theme");
     if (col !== undefined) {
@@ -220,7 +277,11 @@ var handler_theme_apply = function () {
 };
     
 
+/* ---------------------------------------------
 
+Creates event handlers for switching colour theme.
+
+---------------------------------------------- */
 var handler_theme_switch = function () {
     $(".material-icons").click(function () {
         toggle_blackout(true);

@@ -2,10 +2,20 @@
 /*global $, jQuery, alert, Cookies, create_popup, console, WebSocket*/
 'use strict';
 
+/* ---------------------------------------------
+
+Create websocket for the chat feature
+
+---------------------------------------------- */
 var serverIP = window.location.href.replace("http://", "").replace(":8080/dashboard", "");
 var socketMainChat;// = new WebSocket('ws://' + serverIP + ':8081/');
 
 
+/* ---------------------------------------------
+
+Handler for navigating to logged-in user's profile
+
+---------------------------------------------- */
 var handler_me = function () {
     $(".current-user-name").click(function () {
         window.location.replace("/me");
@@ -13,6 +23,12 @@ var handler_me = function () {
 };
 
 
+/* ---------------------------------------------
+
+Send a chat message over the socket to the server.
+This contains the session cookie.
+
+---------------------------------------------- */
 var send_message = function () {
     var session = Cookies.get("session"),
         message = $(".chat-main-input")[0].value,
@@ -25,6 +41,11 @@ var send_message = function () {
 };
 
 
+/* ---------------------------------------------
+
+Handler for sending chat messages
+
+---------------------------------------------- */
 var handler_send_message = function () {
     $(".chat-main-send").click(function () {
         send_message();
@@ -37,6 +58,13 @@ var handler_send_message = function () {
 };
 
 
+/* ---------------------------------------------
+
+When a new message is received from the server, 
+create a new chat-bubble with the content, set 
+the icon to be a link to the senders profile
+
+---------------------------------------------- */
 var insert_message = function (name, id, message) {
     var theme = "theme" + Cookies.get("theme"),
         $chatBubble = $("<div>", {"class" : theme + " chat-bubble"}),
@@ -61,6 +89,11 @@ var insert_message = function (name, id, message) {
 };
 
 
+/* ---------------------------------------------
+
+Handler for the chat socket connection
+
+---------------------------------------------- */
 var handler_socket = function () {
     socketMainChat = new WebSocket('ws://' + serverIP + ':8081/');
     
@@ -101,7 +134,6 @@ var main = function () {
     }
     
     window.onbeforeunload = function () {
-//        socketMainChat.onclose = function () {}; // disable onclose handler first
         socketMainChat.close();
     };
     

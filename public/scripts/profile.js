@@ -2,6 +2,12 @@
 /*global $, jQuery, alert, console, Cookies, create_popup, confirm*/
 'use strict';
 
+
+/* ---------------------------------------------
+
+Handler for navigating to logged-in user's profile
+
+---------------------------------------------- */
 var handler_me = function () {
     $(".current-user-name").click(function () {
         window.location.replace("/me");
@@ -9,6 +15,11 @@ var handler_me = function () {
 };
 
 
+/* ---------------------------------------------
+
+Send POST request to delete the users account
+
+---------------------------------------------- */
 var post_delete = function () {
     $.post("/API-delete", "")
            .done(function (data, staus) {
@@ -20,6 +31,11 @@ var post_delete = function () {
 };
 
 
+/* ---------------------------------------------
+
+Handler for user deleting their account
+
+---------------------------------------------- */
 var handler_delete = function () {
     $(".profile-delete").click(function () {
         if (confirm("Are you sure you'd like to delete your account?")) {

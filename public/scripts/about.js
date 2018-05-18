@@ -2,6 +2,24 @@
 /*global $, jQuery, alert, console, Cookies, create_popup, create_cover*/
 'use strict';
 
+
+/* ---------------------------------------------
+
+Handler for navigating to logged-in user's profile
+
+---------------------------------------------- */
+var handler_me = function () {
+    $(".current-user-name").click(function () {
+        window.location.replace("/me");
+    });
+};
+
+
+/* ---------------------------------------------
+
+Handler for testing the notification feature
+
+---------------------------------------------- */
 var handle_notif_test = function () {
     $(".about-test").keydown(function (key) {
         if ($(".about-test")[0].value !== "" && $(".about-test")[0].value !== undefined) {
@@ -13,7 +31,9 @@ var handle_notif_test = function () {
     });
 };
 
+
 var main = function () {
+    handler_me();
     handle_notif_test();
     var col = Cookies.get("theme");
     if (col !== undefined) {
