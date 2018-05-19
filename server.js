@@ -4,6 +4,7 @@ var path  = require('path');
 var sql = require("sqlite3");
 var bcrypt = require("bcrypt");
 var WSS = require('ws').Server;
+var request = require("request");
 var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require("cookie-parser");
@@ -543,7 +544,42 @@ var clear_loginAuth_cookie = function (req, res) {
     res.clearCookie("theme", "");
     res.clearCookie("loginAuth", "");
     return res;
-}
+};
+
+
+/* ---------------------------------------------
+
+Uses the "I can haz dad joke" API to pull a random
+joke. Return to the sender only, not all clients.
+Custom User-Agent as requested for in the API spec.
+
+---------------------------------------------- */
+var get_joke = function (socket) {
+    request({
+        uri: "https://icanhazdadjoke.com",
+        path: "/",
+        headers: {
+            Accept: "text/plain",
+            "User-Agent": "My uni project, https://github.com/IwanCole/WebTech-UoB"
+        },
+        method: "GET",
+        timeout: 5000,
+        followRedirect: true,
+        maxRedirects: 2
+    }, function(error, response, body) {
+        var joke = {
+            senderName: "Server",
+            senderID: "",
+            message: "Error getting joke :( Check the Server logs"
+        }
+        if (error === null) {
+            if (body.length < 1000) {
+                joke.message = body;
+            }
+        }
+        socket.send(JSON.stringify(joke));
+    });
+};
 
 
 /* =============================================
@@ -880,8 +916,7 @@ main_chat_wss.on("connection", function connection (socket) {
                             senderID: "",
                             message: "Welcome to the chat new user! You can click the colour palette in the footer to change the theme."
                         });
-    socket.send(welcome);
-                                            
+    socket.send(welcome);                                       
     
     socket.on("message", function incoming(data) {
         try {
@@ -896,18 +931,14 @@ main_chat_wss.on("connection", function connection (socket) {
                         var name = globalSessions[session][1];
                         
                         if (data === "@server joke") {
+                            console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data);
                             var payload = JSON.stringify({
                                 senderName: name,
                                 senderID: ID,
                                 message: data
                             });
                             socket.send(payload);
-                            var joke = JSON.stringify({
-                                senderName: "Server",
-                                senderID: "",
-                                message: "There are 10 types of people in the world. Those who understand binary, and those who do not."
-                            });
-                            socket.send(joke);
+                            get_joke(socket);
                         } else {
                             console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data); 
 
