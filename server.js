@@ -38,7 +38,7 @@ var db_init = function() {
         if (err !== null) {
             console.log("[SERVR] ERROR: \n" + err);
         } else {
-            console.log("[SERVR] DATABASE: Created database");
+            console.log("[SERVR] DATABASE: Connected to database");
         }
     });
 };
@@ -271,6 +271,7 @@ Start the web server, init the database
 
 ---------------------------------------------- */
 app.listen(8080, function() {
+    console.log("[SERVR] INFO: Use '$npm run-script clean' to empty the Database for a clean start");
     console.log('[SERVR] STATUS: Express HTTP server on listening on port 8080');
     db.serialize(db_init);
     db_get_emails_ids();
