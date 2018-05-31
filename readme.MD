@@ -16,17 +16,17 @@ Small website created to demonstrate various web technologies for a piece of cou
 
 ## Examples from the site
 #### User signup animation
-<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/signup.gif" width="550"> 
+<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/signup.gif" width="650"> 
 
 #### Theme switching
-<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/theme.gif" width="550">
+<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/theme.gif" width="650">
 
 #### Asking the server for a joke
-<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/joke.gif" width="550">
+<img src="https://github.com/IwanCole/WebTech-UoB/blob/master/readme_images/joke.gif" width="650">
 
 
 
-##### See the report for technical and implementation details
+##### See the report for technical details
 
 
 
