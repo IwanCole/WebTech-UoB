@@ -135,18 +135,18 @@ var db_attempt_auth = function (email, password, res) {
                     payload["cookie"]  = cookie;
                     payload["info"]    = "Login successful, redirecting...";
                     console.log("[SERVR] AUTH: User auth successful for " + email);
-                    
+
                     res.cookie("loginAuth", cookie,
                               { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
                     var session = create_session_token(item['name'], item['id']);
-                    res.cookie("myID", item['id'], 
+                    res.cookie("myID", item['id'],
                                { expires: new Date(Date.now() + 90000000000),
                                 encode: String});
                     res.cookie("session", session,
                               { expires: 0,
                                 encode: String});
-                                
+
 
                 } else {
                     // password incorrect
@@ -190,19 +190,19 @@ var db_get_profile = function (req, res) {
                     if (err1 === null) {
                         fs.readFile(__dirname + '/templates/nav.html', 'utf8', function (err2, nav) {
                             if (err2 === null) {
-                                
+
                                 if (globalSessions[req.cookies['session']] != undefined) {
                                     var name = globalSessions[req.cookies['session']][1];
 
                                     console.log("[SERVR] DATABASE: Successfully pulled entry for " + name);
-                                    
+
                                     profile = profile.replace("%%nav%%", nav);
                                     profile = profile.replaceAll("%%name%%", name);
                                     profile = profile.replaceAll("%%profileName%%", row['profileName']);
                                     profile = profile.replace("%%dname%%", row['dname']);
                                     var num = Math.floor(Math.random() * 4) + 1;
                                     profile = profile.replace("%%picNum%%", num);
-                                    
+
                                     if (globalSessions[req.cookies['session']][0] == req.query.id) {
                                         profile = profile.replace("%%profileDelete%%", '<button class="profile-delete">Delete my account</button>');
                                     } else {
@@ -222,14 +222,14 @@ var db_get_profile = function (req, res) {
                         res.status(500);
                         res.send("Something went wrong...");
                     }
-                });  
+                });
             } else {
                 res.redirect(303, "/dashboard");
             }
         } else {
             console.log("[SERVR] ERROR: \n " + err);
             res.redirect(303, "/dashboard");
-        }   
+        }
     });
 };
 
@@ -245,7 +245,7 @@ var db_delete_profile = function (req, res) {
         if (cookie.indexOf("|") == 60) {
             var UID = cookie.split("|")[0];
             var token = cookie.split("|")[1];
-            
+
             db.run("DELETE FROM users WHERE uid=? AND token=?", [UID, token], function(err) {
                 if (err) {
                     console.log("[SERVR] ERROR: \n " + err);
@@ -460,7 +460,7 @@ var create_user_creds = function(email, password, name) {
         ID = misc_pad_zeros(Math.floor(Math.random() * 10000000) + 1, 9);
     }
     var session      = create_session_token(name, ID);
-    
+
     globalIDs[ID] = 1;
 
     console.log("[SERVR] NEW USER PassHash: " + passwordData['hash']);
@@ -539,7 +539,7 @@ Clear a loginAuth cookie from the client
 var clear_loginAuth_cookie = function (req, res) {
     var session = req.cookies['session'];
     globalSessions[session] = "";
-    
+
     res.clearCookie("session", "");
     res.clearCookie("myID", "");
     res.clearCookie("theme", "");
@@ -614,15 +614,15 @@ app.get("/me", function (req, res) {
             } else {
 //                res.cookie("login")
                 res = clear_loginAuth_cookie(req, res);
-                res.redirect(303, "/"); 
+                res.redirect(303, "/");
             }
         } else {
             res = clear_loginAuth_cookie(req, res);
-            res.redirect(303, "/"); 
+            res.redirect(303, "/");
         }
     } else {
         res = clear_loginAuth_cookie(req, res);
-        res.redirect(303, "/"); 
+        res.redirect(303, "/");
     }
 });
 
@@ -682,7 +682,7 @@ app.get("/dashboard", function (req, res) {
 
 /* ---------------------------------------------
 
-Fill the about template and return to client. 
+Fill the about template and return to client.
 If the user is logged in, display the nav bar.
 If not, only display "about" section.
 
@@ -697,9 +697,9 @@ app.get("/about", function (req, res) {
                         if (err == null) {
                             var profile = globalSessions[req.cookies['session']][0];
                             var name    = globalSessions[req.cookies['session']][1];
-                            
+
                             about = about.replace("%%nav%%", nav).replaceAll("%%name%%", name);
-                            
+
                             res.status(200);
                             res.send(about);
                         } else {
@@ -710,7 +710,7 @@ app.get("/about", function (req, res) {
                     });
                 } else { served = false }
             } else { served = false }
-            
+
             if (!served) {
                 about = about.replaceAll("%%name%%", "").replace("%%nav%%", "");
                 res.send(about);
@@ -770,7 +770,7 @@ app.post("/API-login", function(req, res) {
 
 /* ---------------------------------------------
 
-Handle requests to delete the user's account 
+Handle requests to delete the user's account
 
 ---------------------------------------------- */
 app.post("/API-delete", function (req, res) {
@@ -849,7 +849,7 @@ app.post("/API-signup", function(req, res) {
     res.cookie("loginAuth", payload['cookie'],
                { expires: new Date(Date.now() + 90000000000),
                  encode: String});
-    res.cookie("myID", payload['myID'], 
+    res.cookie("myID", payload['myID'],
                { expires: new Date(Date.now() + 90000000000),
                  encode: String});
     res.cookie("session", payload['session'],
@@ -909,28 +909,28 @@ Handling the main chat websocket connection
 
 ---------------------------------------------- */
 main_chat_wss.on("connection", function connection (socket) {
-    
+
     console.log("[SERVR] CHAT: Someone connected");
-    
+
     var welcome = JSON.stringify({
                             senderName: "Server",
                             senderID: "",
                             message: "Welcome to the chat new user! You can click the colour palette in the footer to change the theme."
                         });
-    socket.send(welcome);                                       
-    
+    socket.send(welcome);
+
     socket.on("message", function incoming(data) {
         try {
             var message = JSON.parse(data);
             if (message.session != undefined && message.data != undefined){
                 var data    = message.data;
                 var session = message.session;
-                
+
                 if (data.replaceAll(" ", "") != "") {
                     if (globalSessions[session] != undefined) {
                         var ID   = globalSessions[session][0];
                         var name = globalSessions[session][1];
-                        
+
                         if (data === "@server joke") {
                             console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data);
                             var payload = JSON.stringify({
@@ -941,13 +941,13 @@ main_chat_wss.on("connection", function connection (socket) {
                             socket.send(payload);
                             get_joke(socket);
                         } else {
-                            console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data); 
+                            console.log("[" + name.toLocaleUpperCase() + "] CHAT: " + data);
 
                             var payload = JSON.stringify({
                                 senderName: name,
                                 senderID: ID,
                                 message: data
-                            });                    
+                            });
                             main_chat_wss.clients.forEach(function each(client) {
                                 client.send(payload);
                             });
